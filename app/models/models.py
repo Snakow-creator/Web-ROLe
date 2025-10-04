@@ -39,7 +39,7 @@ class BaseTask(Document):
 
 
 class Level(Document):
-    level: int = Field(gt=0, description="Уровень")
+    level: Annotated[int, Indexed(unique=True)]
     xp: int = Field(ge=0, description="Требуемый опыт")
     role: str = Field(description="Роль пользователя")
 

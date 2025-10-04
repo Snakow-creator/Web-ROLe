@@ -32,7 +32,6 @@ async def main(app: FastAPI):
 
 app = FastAPI(lifespan=main)
 app.include_router(core.init_router)
-logging.warning("app is load")
 
 if __name__ == "__main__":
     settings.collection_name = baseSettings.collection_name
