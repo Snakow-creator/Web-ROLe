@@ -1,0 +1,72 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# ====================
+# Python
+# ====================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+develop-eggs/
+.installed.cfg
+*.manifest
+*.spec
+*.cover
+*.log
+*.pot
+*.mo
+*.cache
+*.tmp
+*.swp
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+.pyre/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+pip-wheel-metadata/
+
+# Jupyter
+.ipynb_checkpoints
+
+# ====================
+# Mongo / pymongo
+# ====================
+# Если вдруг дампы БД попадут в проект
+*.bson
+*.json
+*.csv
+dump/
+backups/
+
+# ====================
+# macOS
+# ====================
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# custom
+.vscode
+.env
+pyproject.toml
+pytest.ini
+tests/
