@@ -1,6 +1,5 @@
 annotated-types==0.7.0
 anyio==4.11.0
-asyncclick==8.3.0.4
 authx==1.4.3
 bcrypt==4.0.1
 beanie==2.0.0
@@ -51,5 +50,4 @@ sniffio==1.3.1
 starlette==0.48.0
 typing-inspection==0.4.1
 typing_extensions==4.15.0
--e git+https://github.com/Snakow-creator/Web-ROLe.git@efeed4b362097844f1f4caf82bad2f6cdc4960c1#egg=UNKNOWN
 uvicorn==0.37.0

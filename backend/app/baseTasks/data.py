@@ -1,5 +1,5 @@
-baseTasks_data = {
-  {
+baseTasks_data = (
+    {
         "difficulty": "simple",
         "points": 20,
     },
@@ -19,4 +19,4 @@ baseTasks_data = {
         "difficulty": "hardcore",
         "points": 5000,
     },
-}
+)

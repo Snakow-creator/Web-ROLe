@@ -8,7 +8,7 @@ class InputSettings(BaseSettings):
     test_collection_name: str = Field(validation_alias="TEST_COLLECTION_NAME")
 
     class Config:
-        env_file = ".env"
+        env_file = "/Users/snakow/Documents/MyProjects/Web ROLe/backend/.env"
 
 baseSettings = InputSettings()
 

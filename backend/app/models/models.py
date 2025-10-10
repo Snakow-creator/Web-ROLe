@@ -48,11 +48,11 @@ class Level(Document):
 
 
 class ShopItem(Document):
-    title: str = Field(max_length=100, description="Название товара")
+    title: Annotated[str, Indexed(unique=True)] = Field(max_length=100, description="Название товара")
     description: str = Field(max_length=255, description="Описание товара")
     price: int = Field(gt=0, description="Цена товара")
     type: str = Field(description="Тип товара")
-    min_level: int = Field(gt=0, description="Минимальный уровень для покупки")
+    min_level: int = Field(gte=0, description="Минимальный уровень для покупки")
 
     model_config = ConfigDict(extra="forbid")
 

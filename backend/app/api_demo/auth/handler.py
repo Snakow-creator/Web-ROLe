@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, Response, HTTPException, Request
 from authx import AuthX, AuthXConfig
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 from models.models import User
 from models.schemas import UserSchema, RegisterUserSchema
 from api_demo.auth.crypt import hash_password, verify_password
 
-from datetime import datetime, timedelta
+import logging
+import jwt
 
 router = APIRouter(tags=["auth"])
 
@@ -26,8 +28,7 @@ class RefreshForm(BaseModel):
 @router.post("/login/")
 async def login(creds: UserSchema, response: Response):
     if creds.name == "test" and creds.password == "testtest":
-        token = security.create_access_token(uid="11111",
-            data={"name": "test",
+        data = {"name": "test",
                   "level": 999,
                   "xp": 9999999,
                   "Spoints":9999999,
@@ -40,16 +41,17 @@ async def login(creds: UserSchema, response: Response):
                   "complete_hard_tasks": 999,
                   "complete_expert_tasks": 999,
                   "complete_hardcore_tasks": 999
-            },
+            }
+        token = security.create_access_token(uid="11111",
+            data=data,
             expiry=timedelta(days=15)
         )
         response.set_cookie(key="my_access_token", value=token, httponly=True)
-        return {"access_token": token, "token_type": "test"}
+        return data
     else:
         user = await User.find_one(User.name == creds.name)
         if await verify_password(creds.password, user.hashed_password):
-            token = security.create_access_token(uid=user.name,
-                data={"name": user.name,
+            data = {"name": user.name,
                   "level": user.level,
                   "xp": user.xp,
                   "Spoints": user.Spoints,
@@ -62,11 +64,13 @@ async def login(creds: UserSchema, response: Response):
                   "complete_hard_tasks": user.complete_hard_tasks,
                   "complete_expert_tasks": user.complete_expert_tasks,
                   "complete_hardcore_tasks": user.complete_hardcore_tasks
-                },
+                }
+            token = security.create_access_token(uid=user.name,
+                data=data,
                 expiry=timedelta(days=15)
             )
             response.set_cookie(key="my_access_token", value=token, httponly=True)
-            return {"access_token": token, "token_type": "user"}
+            return data
 
         raise HTTPException(status_code=400, detail="Invalid credentials")
 

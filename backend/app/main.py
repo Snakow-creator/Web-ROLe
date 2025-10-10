@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 
@@ -22,16 +23,26 @@ async def main(app: FastAPI):
         database=client[collection],
         document_models=[User, Level, ShopItem, BaseTask],
     )
-    if collection == "test_role_db":
-        await drop_tests_collection()
-
     logging.info("ROLe is starting...")
     yield
+    if collection == "test_role_db":
+        await drop_tests_collection()
     logging.info("ROLe is closing...")
 
 
+origins = [
+    "http://localhost:5173/, http://127.0.0.1:5173", "http://localhost:5173"
+]
+
 app = FastAPI(lifespan=main)
 app.include_router(core.init_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins, # используем только проверенные адреса
+    allow_credentials=True, # отправка cookies, токенов, авторизационных заголовков
+    allow_methods=["*"], # использование всех методов(GET, POST, PUT, DELETE)
+    allow_headers=["*"], # любые headers
+)
 
 if __name__ == "__main__":
     settings.collection_name = baseSettings.collection_name
