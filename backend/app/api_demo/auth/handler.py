@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from models.models import User
 from models.schemas import UserSchema, RegisterUserSchema
 from api_demo.auth.crypt import hash_password, verify_password
+from levels.data import which_my_role
 
 import logging
 import jwt
@@ -19,6 +20,13 @@ config.JWT_ACCESS_COOKIE_NAME = "my_access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 
 security = AuthX(config=config)
+
+csrf_required = security.token_required(
+    type="access",
+    verify_type=True,
+    verify_fresh=False,
+    verify_csrf=True  # ⚡ отключаем CSRF
+)
 
 
 class RefreshForm(BaseModel):
@@ -76,8 +84,13 @@ async def login(creds: UserSchema, response: Response):
 
 
 @router.post("/logout/", dependencies=[Depends(security.access_token_required)])
-async def logout():
-    security.unset_access_cookies()
+async def logout(response: Response):
+    # delete access and refresh token
+    response.delete_cookie("access_token_cookie")
+    response.delete_cookie("refresh_token_cookie")
+    # if is csrf token
+    response.delete_cookie("csrf_access_token")
+    response.delete_cookie("csrf_refresh_token")
     return {"message": "logout"}
 
 
@@ -113,6 +126,34 @@ async def refresh(request: Request, refresh_data: RefreshForm = None):
         raise HTTPException(status_code=400, detail=str(ex))
 
 
-@router.get("/profile", dependencies=[Depends(security.access_token_required)])
-async def protected():
-    return
+@router.get("/auth/check")
+async def auth_check(dependencies=[Depends(security.access_token_required)]):
+    """
+    Эндпоинт для проверки авторизации.
+    Возвращает данные пользователя (payload) если токен валиден.
+    Если токен невалиден, AuthX вернёт 401.
+    """
+    return {"authorized": True}
+
+
+@router.get("/profile/", dependencies=[Depends(security.access_token_required)])
+async def protected(request: Request):
+    payload = await security.access_token_required(request)
+    data = {
+        'name': payload.name,
+        'level': payload.level,
+        'role': which_my_role[payload.level],
+        'xp': payload.xp,
+        'Spoints': payload.Spoints,
+        'days_streak': payload.days_streak,
+        'mul': payload.mul,
+        'sale_shop': payload.sale_shop,
+        'last_streak': payload.last_streak,
+        'last_mul': payload.last_mul,
+        'complete_simple_tasks': payload.complete_simple_tasks,
+        'complete_common_tasks': payload.complete_common_tasks,
+        'complete_hard_tasks': payload.complete_hard_tasks,
+        'complete_expert_tasks': payload.complete_expert_tasks,
+        'complete_hardcore_tasks': payload.complete_hardcore_tasks
+    }
+    return data

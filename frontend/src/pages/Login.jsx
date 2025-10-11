@@ -90,7 +90,7 @@ export default function Login() {
             </button>
           </span>
 
-        <Button>Вход</Button>
+        <Button type="submit">Вход</Button>
       </form>
 
       <div>

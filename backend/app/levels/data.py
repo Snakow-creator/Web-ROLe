@@ -255,3 +255,8 @@ levels_data = [
     "role": "Бог"
   }
 ]
+
+which_my_role = {
+  lvl['level']: lvl['role']
+  for lvl in levels_data
+}
