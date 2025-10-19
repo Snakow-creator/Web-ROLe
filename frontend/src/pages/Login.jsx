@@ -1,23 +1,25 @@
 import Button from "../components/Button";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
+import getAuth from "../hooks/checkAuth";
 import api from "../api";
 
-function P({children}) {
-  return (
-    <p className="mt-0.5">
-      {children}
-    </p>
-  );
-}
 
 export default function Login() {
-  const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "",
     password: ""
   });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await getAuth();
+      if (res === true) {
+        window.location.href = "/";
+      }
+    }
+    checkAuth();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,31 +32,16 @@ export default function Login() {
 
     try {
       const response = await api.post("/login", formData)
-
-      console.log(response);
-      setMessage (
-        <>
-          <h1 className="">
-            Вход выполнен
-          </h1>
-            <P>Добро пожаловать, <b>{ response.data.name }</b></P>
-            <P>Ваш уровень: <b>{ response.data.level }</b></P>
-            <P>Ваш опыт: <b>{ response.data.xp }</b></P>
-        </>
-      );
+      window.location.href = "/";
     } catch (error) {
       console.error(error);
-      setMessage(
-        <>
-        <h1>Ошибка</h1>
-        </>
-      )
     }
   }
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   }
+
 
   return (
     <>
@@ -65,7 +52,6 @@ export default function Login() {
           type="text"
           id="name"
           name="name"
-          autoComplete={true}
           placeholder="Ник"
           value={ formData.name }
           onChange={ handleChange }
@@ -77,6 +63,7 @@ export default function Login() {
             id="password"
             name="password"
             placeholder="Пароль"
+            autoComplete="off"
             value={ formData.pword }
             minLength="8"
             maxLength="20"
@@ -92,10 +79,6 @@ export default function Login() {
 
         <Button type="submit">Вход</Button>
       </form>
-
-      <div>
-        { message }
-      </div>
     </>
   );
 }

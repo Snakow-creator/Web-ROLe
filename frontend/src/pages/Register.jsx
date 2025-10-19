@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api";
 import Button from "../components/Button";
+import getAuth from "../hooks/checkAuth";
 
 
 function InputPassword({name, placeholder, value, onChange}) {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await getAuth();
+      if (res === true) {
+        window.location.href = "/";
+      }
+    }
+    checkAuth();
+  }, []);
+
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
@@ -16,7 +28,7 @@ function InputPassword({name, placeholder, value, onChange}) {
         <input
           type={ showPassword ? "text" : "password"}
           name={ name }
-          placeholder={ placeholder } // placeholder
+          placeholder={ placeholder }
           value={ value }
           minLength="8"
           maxLength="20"
