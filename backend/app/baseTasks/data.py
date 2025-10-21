@@ -1,3 +1,7 @@
+from baseTasks.requests import get_baseTasks
+
+list_baseTasks = get_baseTasks()
+
 baseTasks_data = (
     {
         "difficulty": "simple",
@@ -20,3 +24,5 @@ baseTasks_data = (
         "points": 5000,
     },
 )
+
+

@@ -48,7 +48,9 @@ class Level(Document):
 
 
 class ShopItem(Document):
-    title: Annotated[str, Indexed(unique=True)] = Field(max_length=100, description="Название товара")
+    title: Annotated[str, Indexed(unique=True)] = Field(
+        max_length=100, description="Название товара"
+    )
     description: str = Field(max_length=255, description="Описание товара")
     price: int = Field(gt=0, description="Цена товара")
     type: str = Field(description="Тип товара")
@@ -58,3 +60,16 @@ class ShopItem(Document):
 
     class Settings:
         name = "shop_items"
+
+
+class Task(Document):
+    title: str = Field(max_length=100, description="Название задания")
+    description: str = Field(max_length=255, description="Описание задания")
+    type: str = Field(description="Тип задания")
+    user: str = Field(description="Пользователь, который зарегистрировал задание")
+    date: str = datetime.now().strftime("%Y-%m-%d")
+
+    model_config = ConfigDict(extra="forbid")
+
+    class Settings:
+        name = "tasks"
