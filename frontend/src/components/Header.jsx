@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getCSRFCookie, getCookie } from './GetCookies';
+import { getCSRFCookie, getCookie } from "../hooks/getCookies";
 
 import getAuth from '../hooks/checkAuth';
 import logo from '/logo.png' // пока не трогаем
@@ -36,6 +36,8 @@ export default function Header() {
       setBar(
         <>
           <h3><Link to="/profile" className='font-bold'>профиль</Link></h3>
+          <h3><Link to="/add/task" className="font-bold">добавить задачу</Link></h3>
+          <h3><Link to="/tasks" className='font-bold'>мои задачи</Link></h3>
           <h3><button className='cursor-pointer font-bold' onClick={logout}>выйти</button></h3>
         </>
       )

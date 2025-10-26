@@ -98,7 +98,6 @@ def protected(user = Depends(auth.get_optional_access_token)):
 
 @router.get("/profile", dependencies=[Depends(security.access_token_required)])
 async def profile(
-    request: Request,
     user: User = Depends(security.get_current_subject),
 ):
     try:

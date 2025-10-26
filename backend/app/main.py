@@ -25,7 +25,7 @@ async def main(app: FastAPI):
     )
     logging.info("ROLe is starting...")
     yield
-    if collection == "test_role_db":
+    if collection == baseSettings.test_collection_name:
         await drop_tests_collection()
     logging.info("ROLe is closing...")
 
