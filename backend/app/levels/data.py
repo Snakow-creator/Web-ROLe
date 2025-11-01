@@ -256,6 +256,10 @@ levels_data = [
   }
 ]
 
+
+xp_list = [(lvl['xp'], lvl['level']) for lvl in levels_data]
+
+
 which_my_role = {
   lvl['level']: lvl['role']
   for lvl in levels_data

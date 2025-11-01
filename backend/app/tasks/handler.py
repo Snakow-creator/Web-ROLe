@@ -4,6 +4,9 @@ from models.schemas import TaskSchema
 from models.models import Task, User
 from baseTasks.data import list_baseTasks
 from api_demo.core.security import security
+from users.requests import complete_task
+
+from beanie import PydanticObjectId as ObjectId
 
 router = APIRouter(tags=["tasks"])
 
@@ -31,3 +34,18 @@ async def add_task(
     )
     await task.insert()
     return {"message": "Task added"}
+
+
+@router.put("/complete/task/{id}", dependencies=[Depends(security.access_token_required)])
+async def edit_task(
+    id: str,
+    user: User = Depends(security.get_current_subject),
+):
+    task = await Task.get(ObjectId(id))
+    print(task)
+    if task.user != user["name"]:
+        raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
+
+    res = await complete_task(id, user["name"])
+    return res
+

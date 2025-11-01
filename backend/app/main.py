@@ -47,6 +47,6 @@ app.add_middleware(
     allow_headers=["*"],  # любые headers
 )
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
     settings.collection_name = baseSettings.collection_name
     uvicorn.run(app, host="localhost", port=7878)
