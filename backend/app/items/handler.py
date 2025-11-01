@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
 from models.models import User
+from fastapi import APIRouter, Depends
 from api_demo.core.security import security
 from items.requests import get_items, buy_item
 
@@ -8,8 +8,10 @@ router = APIRouter(tags=['items'])
 
 
 @router.get('/items', dependencies=[Depends(security.access_token_required)])
-async def list_items():
-    return await get_items()
+async def list_items(
+    user: User = Depends(security.get_current_subject)
+):
+    return await get_items(user['level'])
 
 
 @router.post('/buy/item/{id}', dependencies=[Depends(security.access_token_required)])

@@ -3,8 +3,8 @@ from models.models import ShopItem, User
 from beanie import PydanticObjectId as ObjectId
 
 
-async def get_items():
-    return await ShopItem.find().to_list()
+async def get_items(level):
+    return await ShopItem.find(ShopItem.min_level <= level).to_list()
 
 
 async def buy_item(id, name):
