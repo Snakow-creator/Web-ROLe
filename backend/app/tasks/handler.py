@@ -49,3 +49,15 @@ async def edit_task(
     res = await complete_task(id, user["name"])
     return res
 
+
+@router.delete("/delete/task/{id}", dependencies=[Depends(security.access_token_required)])
+async def delete_task(
+    id: str,
+    user: User = Depends(security.get_current_subject),
+):
+    task = await Task.get(ObjectId(id))
+    if task.user != user["name"]:
+        raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
+    await task.delete()
+    return {"message": "Task deleted"}
+

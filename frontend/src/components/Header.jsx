@@ -38,6 +38,7 @@ export default function Header() {
           <h3><Link to="/profile" className='font-bold'>профиль</Link></h3>
           <h3><Link to="/add/task" className="font-bold">добавить задачу</Link></h3>
           <h3><Link to="/tasks" className='font-bold'>мои задачи</Link></h3>
+          <h3><Link to="/items" className='font-bold'>магазин</Link></h3>
           <h3><button className='cursor-pointer font-bold' onClick={logout}>выйти</button></h3>
         </>
       )

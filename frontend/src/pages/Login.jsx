@@ -31,7 +31,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await api.post("/login", formData)
+      const res = await api.post("/login", formData)
       window.location.href = "/";
     } catch (error) {
       console.error(error);

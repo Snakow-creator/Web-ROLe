@@ -17,4 +17,4 @@ async def buy_item(id, name):
         }
     })
 
-    return {"message": f"Вы купили {item.title} за {item.price} Spoints"}
+    return {"message": f"Вы купили \"{item.title}\" за {item.price} Spoints"}

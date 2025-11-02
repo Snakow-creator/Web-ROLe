@@ -14,7 +14,7 @@ async def list_items(
     return await get_items(user['level'])
 
 
-@router.post('/buy/item/{id}', dependencies=[Depends(security.access_token_required)])
+@router.put('/buy/item/{id}', dependencies=[Depends(security.access_token_required)])
 async def handler_buy_item(
     id: str,
     user: User = Depends(security.get_current_subject
