@@ -15,7 +15,12 @@ router = APIRouter(tags=["tasks"])
 async def tasks(
     user: User = Depends(security.get_current_subject),
 ):
-    tasks = await Task.find(Task.user == user['name']).sort(-Task.date).to_list()
+    tasks = await Task.find(
+        (Task.user == user['name']) and
+        (Task.inactive == False) and
+        (Task.inactive == False)).sort(
+        -Task.date
+    ).to_list()
     return tasks
 
 

@@ -1,5 +1,6 @@
 from fastapi import (APIRouter, Depends, HTTPException, Request)
 from authx import AuthXDependency
+from datetime import datetime
 
 from api_demo.auth.crypt import hash_password, verify_password
 from api_demo.auth.service import auth
@@ -32,8 +33,8 @@ async def login(
                   "Spoints": user.Spoints,
                   "days_streak": user.days_streak,
                   "mul": user.mul, "sale_shop": user.sale_shop,
-                  "last_streak": user.last_streak,
-                  "last_mul": user.last_mul,
+                  "last_streak": user.last_streak.timestamp(),
+                  "last_mul": user.last_mul.timestamp(),
                   "complete_simple_tasks": user.complete_simple_tasks,
                   "complete_common_tasks": user.complete_common_tasks,
                   "complete_hard_tasks": user.complete_hard_tasks,
@@ -42,7 +43,6 @@ async def login(
                 }
     auth.authenticate_user(deps, user_id, data)
     return data
-
 
 
 @router.post('/logout', dependencies=[Depends(security.get_dependency)])

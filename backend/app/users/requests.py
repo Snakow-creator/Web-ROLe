@@ -3,7 +3,7 @@ from baseTasks.data import baseTasks_points, task_bonus
 from levels.hooks import current_level
 
 from beanie import PydanticObjectId as ObjectId
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 async def up_level(name, level):
@@ -26,12 +26,10 @@ async def complete_task(id, name):
     # find task and user
     task = await Task.get(ObjectId(id))
     user = await User.find_one(User.name == name)
-
     tasks = await Task.find(
         Task.user == name,
         Task.type == task.type
     ).to_list()
-    print(tasks)
 
     # points for task
     points = baseTasks_points[task.type]
@@ -39,22 +37,34 @@ async def complete_task(id, name):
     # check if task is last, then add bonus task
     if len(tasks) == 1:
         points = points * task_bonus
-        print(points)
 
     # update last_streak if needed
     if user.last_streak != datetime.now().strftime("%Y-%m-%d"):
         await user.update(
             {
-                "$set": {"last_streak": datetime.now().strftime("%Y-%m-%d")},
+                "$set": {
+                    "last_streak": datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                },
                 "$inc": {"days_streak": 1},
             }
         )
 
     # update user points
-    await user.update({"$inc": {"Spoints": points, "xp": points}})
+    await user.update(
+        {"$inc": {
+            "Spoints": points,
+            "xp": points,
+            f"complete_{task.type}_tasks": 1,
+        }}
+    )
 
-    # delete task
-    await task.delete()
+    # task update, do task is inactive
+    await task.update(
+        {"$set": {
+            "completed": True,
+            "complete_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        }}
+    )
 
     # update level if current level higher than task level
     level = current_level(user.xp)

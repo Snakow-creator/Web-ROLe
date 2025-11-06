@@ -4,8 +4,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 
 from models.models import User, Level, ShopItem, BaseTask, Task
-from base.utils import drop_tests_collection
 from models.settings import settings, baseSettings
+from tasks.requests import update_tasks
+from base.utils import drop_tests_collection
 from routers import core
 
 import beanie
@@ -19,12 +20,18 @@ logging.basicConfig(level=logging.INFO)
 async def main(app: FastAPI):
     client = AsyncIOMotorClient(settings.mongo_url)
     collection = settings.collection_name
+    # initialize db
     await beanie.init_beanie(
         database=client[collection],
         document_models=[User, Level, ShopItem, BaseTask, Task],
     )
+    # expire tasks
+    await update_tasks()
+
     logging.info("ROLe is starting...")
+
     yield
+
     if collection == baseSettings.test_collection_name:
         await drop_tests_collection()
     logging.info("ROLe is closing...")
