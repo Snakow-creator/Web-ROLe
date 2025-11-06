@@ -67,14 +67,19 @@ class ShopItem(Document):
 
 
 class Task(Document):
+    # основные данные
     title: str = Field(max_length=100, description="Название задания")
     description: str = Field(max_length=255, description="Описание задания")
     type: str = Field(description="Тип задания")
     user: str = Field(description="Пользователь, который зарегистрировал задание")
+    # дата создания и завершения
     date: Optional[datetime] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     complete_date: Optional[datetime] = Field(default=None, description="Дата завершения задания")
+    # пройдена ли задание или истекло
     completed: bool = Field(default=False, description="Завершено задание")
     inactive: bool = Field(default=False, description="Истекло время")
+    # сколько начислено поинтов за задание(если было выполнено)
+    awarded_points: int = Field(default=0, ge=0, description="Поинты за задание")
 
     model_config = ConfigDict(extra="forbid")
 

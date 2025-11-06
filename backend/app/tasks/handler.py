@@ -16,9 +16,9 @@ async def tasks(
     user: User = Depends(security.get_current_subject),
 ):
     tasks = await Task.find(
-        (Task.user == user['name']) and
-        (Task.inactive == False) and
-        (Task.inactive == False)).sort(
+        Task.user == user['name'],
+        Task.inactive == False,
+        Task.completed == False).sort(
         -Task.date
     ).to_list()
     return tasks
