@@ -61,11 +61,13 @@ async def complete_task(id, name):
         points = points * task_bonus
 
     # update last_streak if needed
-    if user.last_streak != datetime.now().strftime("%Y-%m-%d"):
+    last_streak = user.last_streak.strftime("%Y-%m-%d")
+    print(last_streak, datetime.now().strftime("%Y-%m-%d"))
+    if last_streak != datetime.now().strftime("%Y-%m-%d"):
         await user.update(
             {
                 "$set": {
-                    "last_streak": datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    "last_streak": datetime.now(timezone.utc),
                 },
                 "$inc": {"days_streak": 1},
             }
@@ -84,7 +86,7 @@ async def complete_task(id, name):
     await task.update(
         {"$set": {
             "completed": True,
-            "complete_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "complete_date": datetime.now(timezone.utc),
             "awarded_points": points
         }}
     )
@@ -131,7 +133,7 @@ async def uncomplete_task(id, name):
     )
 
     # update level if current level less than user level
-    level = await current_level(user.xp)
+    level = current_level(user.xp)
     if user.level > level:
         res = await deprive_level(name, level)
         print(res)

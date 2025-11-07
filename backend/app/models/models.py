@@ -14,11 +14,11 @@ class User(Document):
     Spoints: float = Field(default=0, ge=0)
     # подряд завершенные дни
     days_streak: int = Field(default=0, ge=0)
-    last_streak: str | datetime = datetime.now().strftime("%Y-%m-%d")
+    last_streak: str | datetime = datetime.now(timezone.utc)
     # множители и последний множитель
     mul: float = Field(default=1, ge=0)
     sale_shop: float = Field(default=1, ge=0)
-    last_mul: str | datetime = datetime.now().strftime("%Y-%m-%d")
+    last_mul: str | datetime = datetime.now(timezone.utc)
     # завершенные задания
     complete_simple_tasks: int = Field(default=0, ge=0)
     complete_common_tasks: int = Field(default=0, ge=0)
@@ -73,8 +73,12 @@ class Task(Document):
     type: str = Field(description="Тип задания")
     user: str = Field(description="Пользователь, который зарегистрировал задание")
     # дата создания и завершения
-    date: Optional[datetime] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    complete_date: Optional[datetime] = Field(default=None, description="Дата завершения задания")
+    date: Optional[datetime] = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    complete_date: Optional[datetime] = Field(
+        default=None, description="Дата завершения задания"
+    )
     # пройдена ли задание или истекло
     completed: bool = Field(default=False, description="Завершено задание")
     inactive: bool = Field(default=False, description="Истекло время")

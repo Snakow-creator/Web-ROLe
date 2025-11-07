@@ -11,7 +11,7 @@ function Task({id, index, title, description, type}) {
   const [userData, setUserData] = useState({
     spoints: 0,
     xp: 0,
-    isDone: false,
+    isDone: false
   });
 
   const submitTask = async () => {
@@ -42,6 +42,29 @@ function Task({id, index, title, description, type}) {
     }
   }
 
+  const unSubmitTask = async () => {
+    const CSRFToken = getCSRFCookie();
+    try {
+      const res = await api.put(`/uncomplete/task/${id}`, {}, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": CSRFToken
+        }
+      });
+      setMessage("Вы вернули задачу");
+      setSpointsLevel('')
+      setUserData({
+        spoints: 0,
+        xp: 0,
+        isDone: false
+      })
+    } catch (error) {
+      console.error(error);
+      setMessage("Что-то пошло не так");
+    }
+  }
+
   const deleteTask = async () => {
     const CSRFToken = getCSRFCookie();
     try {
@@ -52,8 +75,11 @@ function Task({id, index, title, description, type}) {
           "X-CSRF-TOKEN": CSRFToken
         }
       });
-      setIsDone(true);
       setMessage("Задача успешно удалена");
+      setUserData(prev => ({
+        ...prev,
+        isDone: false
+      }))
     } catch (error) {
       console.error(error)
       setMessage("Что-то пошло не так");
@@ -72,15 +98,18 @@ function Task({id, index, title, description, type}) {
        <p className="mt-1 font-mono">{ description }</p>
       }
 
+      {message && <p className="font-medium">{ message }</p>}
+
       <div className="space-y-1">
-        {message && <>
-          <p>{ message }</p>
+        {userData.xp > 0 && userData.spoints > 0 &&
+        <>
+          <p>тест</p>
           <p>Награда: <b>+{ userData.spoints } Spoints +{ userData.xp } Xp</b> </p>
         </>}
         {spointsLevel && <p>Уровень повышен, награда: <b>+{ spointsLevel } Spoints</b></p>}
       </div>
 
-      {!userData.isDone &&
+      {!userData.isDone ? (
         <>
           <button
             className="block mt-2 bg-gray-200 px-1 rounded-md border border-gray-600"
@@ -95,6 +124,14 @@ function Task({id, index, title, description, type}) {
             Удалить
           </button>
         </>
+      ) : (
+        <button
+          className="block mt-2 bg-gray-200 px-1 rounded-md border border-gray-600"
+          onClick={unSubmitTask}
+          type='button'>
+          Вернуть
+        </button>
+      )
       }
     </div>
   )
