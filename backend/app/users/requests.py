@@ -1,17 +1,17 @@
-from models.models import User, Task
-from baseTasks.data import baseTasks_points, task_bonus
-from levels.hooks import current_level
-
-from beanie import PydanticObjectId as ObjectId
+from repositories import user_repo
 from datetime import datetime, timezone
 
 
-async def up_level(name, level):
-    user = await User.find_one(User.name == name)
+async def edit_level(name, level):
+    # edit user level
+    user = await user_repo.get_by_name(name)
 
     # add points * n if up level more than 1
+    # if level - user.level > 0 -> up level
+    # if level - user.level < 0 -> deprive
     points = (level - user.level) * 200
 
+    print(points)
     await user.update(
         {
             "$inc": {"Spoints": points},
@@ -19,123 +19,30 @@ async def up_level(name, level):
         }
     )
 
-    return {"message": f"Уровень повышен, награда: +{points} Spoints", "points": points}
+    return {"message": "Success", "points": abs(points)}
 
 
-async def deprive_level(name, level):
-    user = await User.find_one(User.name == name)
-
-    # calculate levels
-    levels = user.level - level
-
-    # add points * n if up level more than 1
-    points = (user.level - level) * 200
-
+async def up_streak(user):
     await user.update(
         {
-            "$inc": {"Spoints": -points},
-            "$set": {"level": level},
+            "$set": {
+                "last_streak": datetime.now(timezone.utc),
+            },
+            "$inc": {"days_streak": 1},
         }
     )
 
-    return {"message": f"Уровень понижен на {levels}", "points": points}
 
+async def edit_points(user, points, type, o=1):
+    # update user points, xp and complete tasks
+    # user - object User
+    # type - type of task
+    # o - operation + or -, add or deprive
 
-async def complete_task(id, name):
-    # find task and user
-    task = await Task.get(ObjectId(id))
-    user = await User.find_one(User.name == name)
-    # find active user tasks by type
-    tasks = await Task.find(
-        Task.user == name,
-        Task.type == task.type,
-        Task.completed == False,
-        Task.inactive == False,
-    ).to_list()
-
-    # points for task
-    points = baseTasks_points[task.type]
-
-    # check if task is last, then add bonus task
-    if len(tasks) == 1:
-        points = points * task_bonus
-
-    # update last_streak if needed
-    last_streak = user.last_streak.strftime("%Y-%m-%d")
-    print(last_streak, datetime.now().strftime("%Y-%m-%d"))
-    if last_streak != datetime.now().strftime("%Y-%m-%d"):
-        await user.update(
-            {
-                "$set": {
-                    "last_streak": datetime.now(timezone.utc),
-                },
-                "$inc": {"days_streak": 1},
-            }
-        )
-
-    # update user points
     await user.update(
         {"$inc": {
-            "Spoints": points,
-            "xp": points,
-            f"complete_{task.type}_tasks": 1,
+            "Spoints": o * points,
+            "xp": o * points,
+            f"complete_{type}_tasks": o,
         }}
     )
-
-    # task update, do task is inactive
-    await task.update(
-        {"$set": {
-            "completed": True,
-            "complete_date": datetime.now(timezone.utc),
-            "awarded_points": points
-        }}
-    )
-
-    # update level if current level higher than task level
-    level = current_level(user.xp)
-    if level > user.level:
-        res = await up_level(name, level)
-        print(res)
-        return {
-            "message": "Task completed",
-            "up_level": True,
-            "points": points,
-            "xp": points,
-            "spoints_level": res["points"],
-        }
-
-    return {"message": "Task completed", "up_level": False, "points": points, "xp": points}
-
-
-async def uncomplete_task(id, name):
-    # find task and user
-    task = await Task.get(ObjectId(id))
-    user = await User.find_one(User.name == name)
-
-    points = task.awarded_points
-
-    # task update, do task is active
-    await task.update(
-        {"$set": {
-            "completed": False,
-            "complete_date": None,
-            "awarded_points": 0
-        }}
-    )
-
-    # deprive user points
-    await user.update(
-        {"$inc": {
-            "Spoints": -points,
-            "xp": -points,
-            f"complete_{task.type}_tasks": -1,
-        }}
-    )
-
-    # update level if current level less than user level
-    level = current_level(user.xp)
-    if user.level > level:
-        res = await deprive_level(name, level)
-        print(res)
-
-    return {"message": "Task uncompleted", "points": points, "xp": points}

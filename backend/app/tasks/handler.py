@@ -1,12 +1,15 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends
+from datetime import datetime, timezone
 
 from models.schemas import TaskSchema
 from models.models import Task, User
+
+from tasks.requests import complete_task, uncomplete_task
+
+from repositories import task_repo
 from baseTasks.data import list_baseTasks
 from api_demo.core.security import security
-from users.requests import complete_task, uncomplete_task
 
-from beanie import PydanticObjectId as ObjectId
 
 router = APIRouter(tags=["tasks"])
 
@@ -15,12 +18,7 @@ router = APIRouter(tags=["tasks"])
 async def tasks(
     user: User = Depends(security.get_current_subject),
 ):
-    tasks = await Task.find(
-        Task.user == user['name'],
-        Task.inactive == False,
-        Task.completed == False).sort(
-        -Task.date
-    ).to_list()
+    tasks = await task_repo.get_user_tasks(user["name"])
     return tasks
 
 
@@ -31,13 +29,9 @@ async def add_task(
 ):
     if creds.type not in list_baseTasks:
         raise HTTPException(status_code=400, detail="Invalid task type")
-    task = Task(
-       title=creds.title,
-       description=creds.description,
-       type=creds.type,
-       user=user["name"]
-    )
-    await task.insert()
+
+    await task_repo.insert_task(creds, user["name"])
+
     return {"message": "Task added"}
 
 
@@ -46,7 +40,8 @@ async def edit_task(
     id: str,
     user: User = Depends(security.get_current_subject),
 ):
-    task = await Task.get(ObjectId(id))
+    task = await task_repo.get(id)
+
     if task.user != user["name"]:
         raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
 
@@ -59,7 +54,7 @@ async def edit_task(
     id: str,
     user: User = Depends(security.get_current_subject),
 ):
-    task = await Task.get(ObjectId(id))
+    task = await task_repo.get(id)
     if task.user != user["name"]:
         raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
 
@@ -72,9 +67,10 @@ async def delete_task(
     id: str,
     user: User = Depends(security.get_current_subject),
 ):
-    task = await Task.get(ObjectId(id))
+    task = await task_repo.get(id)
     if task.user != user["name"]:
         raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
+
     await task.delete()
     return {"message": "Task deleted"}
 

@@ -34,4 +34,8 @@ class TokenAuthentication:
 
         return {"message": "DISCONNECTED"}
 
+    @staticmethod
+    def refresh_user(deps, request):
+        return deps.refresh_token(request=request)
+
 auth = TokenAuthentication()

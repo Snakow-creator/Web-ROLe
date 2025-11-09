@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import datetime
 
 
 class UserSchema(BaseModel):
@@ -13,6 +15,7 @@ class RegisterUserSchema(BaseModel):
 
 
 class TaskSchema(BaseModel):
-    title: str = Field(max_length=100, description="Название задания")
-    description: str = Field(max_length=255, description="Описание задания")
-    type: str = Field(description="Тип задания")
+    title: str = Field(max_length=100, description="Название квеста")
+    description: str = Field(max_length=255, description="Описание квеста")
+    type: str = Field(description="Тип квеста")
+    date: Optional[datetime] = Field(description="Дата запланированного квеста")

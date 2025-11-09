@@ -3,11 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 
-from models.models import User, Level, ShopItem, BaseTask, Task
+from models.models import User, Level, ShopItem, BaseTask, Task, Item
 from models.settings import settings, baseSettings
 from tasks.requests import update_tasks
 from base.utils import drop_tests_collection
-from routers import core
+from routers import init_router
 
 import beanie
 import uvicorn
@@ -23,7 +23,7 @@ async def main(app: FastAPI):
     # initialize db
     await beanie.init_beanie(
         database=client[collection],
-        document_models=[User, Level, ShopItem, BaseTask, Task],
+        document_models=[User, Level, ShopItem, BaseTask, Task, Item],
     )
     # expire tasks
     await update_tasks()
@@ -45,7 +45,7 @@ origins = [
 ]
 
 app = FastAPI(lifespan=main)
-app.include_router(core.init_router)
+app.include_router(init_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # используем только проверенные адреса

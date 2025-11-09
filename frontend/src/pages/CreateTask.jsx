@@ -8,7 +8,8 @@ export default function AddTask () {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    type: ""
+    type: "",
+    date: new Date().toISOString().split('T')[0],
   });
 
   const handleChange = (e) => {
@@ -79,6 +80,16 @@ return (
       <Radio value="hard">Трудные</Radio>
       <Radio value="expert">Сложные</Radio>
       <Radio value="hardcore">Хардкор</Radio>
+
+      <label htmlFor="createDate" className="block font-bold">
+        Дата запланированного квеста
+      </label>
+      <input type="date"
+        id="createDate"
+        name="date"
+        className="rounded-md border p-1"
+        value={ formData.date }
+        onChange={ handleChange }/>
 
       <Button type="submit">Создать</Button>
     </form>

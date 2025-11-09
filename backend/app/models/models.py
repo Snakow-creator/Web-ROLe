@@ -66,24 +66,37 @@ class ShopItem(Document):
         name = "shop_items"
 
 
+class Item(Document):
+    title: str = Field(max_length=100, description="Название товара")
+    description: str = Field(max_length=255, description="Описание товара")
+    price: int = Field(gt=0, description="Цена товара")
+    name: str = Field(description="Пользователь, который купил товар")
+    date: Optional[datetime] = datetime.now(timezone.utc)
+
+    model_config = ConfigDict(extra="forbid")
+
+    class Settings:
+        name = "items"
+
+
 class Task(Document):
     # основные данные
-    title: str = Field(max_length=100, description="Название задания")
-    description: str = Field(max_length=255, description="Описание задания")
-    type: str = Field(description="Тип задания")
-    user: str = Field(description="Пользователь, который зарегистрировал задание")
+    title: str = Field(max_length=100, description="Название квеста")
+    description: str = Field(max_length=255, description="Описание квеста")
+    type: str = Field(description="Тип квеста")
+    user: str = Field(description="Пользователь, который зарегистрировал квест")
     # дата создания и завершения
     date: Optional[datetime] = datetime.now(timezone.utc).replace(
         hour=0, minute=0, second=0, microsecond=0
     )
     complete_date: Optional[datetime] = Field(
-        default=None, description="Дата завершения задания"
+        default=None, description="Дата завершения квеста"
     )
     # пройдена ли задание или истекло
-    completed: bool = Field(default=False, description="Завершено задание")
-    inactive: bool = Field(default=False, description="Истекло время")
+    completed: bool = Field(default=False, description="Завершен квест")
+    inactive: bool = Field(default=False, description="Истекло время квеста")
     # сколько начислено поинтов за задание(если было выполнено)
-    awarded_points: int = Field(default=0, ge=0, description="Поинты за задание")
+    awarded_points: int = Field(default=0, ge=0, description="Поинты за квест")
 
     model_config = ConfigDict(extra="forbid")
 
