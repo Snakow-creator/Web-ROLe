@@ -11,20 +11,20 @@ export default function Header() {
   const [auth, setAuth] = useState(null);
 
   const checkAuth = async () => {
-    const res = await getAuth();
-    setAuth(res);
+    const csrfToken = getCSRFCookie();
+    const res = await getAuth(csrfToken);
+    setAuth(res.auth);
+    console.log(res)
   }
 
 
   const logout = async () => {
     const csrfToken = getCSRFCookie();
-    const TOKEN = getCookie("my_access_token");
     const res = await api.post("/logout", {}, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
         "X-CSRF-TOKEN": csrfToken,
-        "Authorization": `Bearer ${TOKEN}`,
       }
     });
     setAuth(false);
@@ -51,9 +51,11 @@ export default function Header() {
       )
     }
   }
-
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  useEffect(() => {
     handleAuth();
   }, [auth]);
 

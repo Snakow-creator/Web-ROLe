@@ -1,9 +1,10 @@
 from pydantic import BaseModel
 from authx import AuthX, AuthXConfig
-from models.models import User
 
+from models.models import User
 from models.settings import settings
 from database.core import role_db
+
 
 users = role_db["users"]
 
@@ -15,6 +16,7 @@ config = AuthXConfig(
 )
 
 security = AuthX(config=config, model=User)
+
 
 class RefreshForm(BaseModel):
         refresh_token: str

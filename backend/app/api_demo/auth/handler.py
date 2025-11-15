@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from authx import AuthXDependency
+from authx import AuthXDependency, RequestToken
+from authx.exceptions import JWTDecodeError
+from typing import Optional
 
 from api_demo.auth.crypt import hash_password, verify_password
 from api_demo.auth.service import auth
@@ -10,6 +12,8 @@ from models.models import User
 from models.schemas import UserSchema, RegisterUserSchema
 from repositories import user_repo
 from levels.data import which_my_role
+
+import logging
 
 
 router = APIRouter(tags=["auth"])
@@ -87,12 +91,34 @@ async def refresh(
         raise HTTPException(status_code=400, detail=str(ex))
 
 
-@router.get("/protected")
-def protected(user=Depends(auth.get_optional_access_token)):
-    if user:
-        return {"message": "AUTHORIZED", "auth": True}
-    else:
-        return {"message": "NOT AUTHORIZED", "auth": False}
+@router.post("/protected")
+async def protected(request: Request):
+    # Check if token is valid:
+
+    # - auth = True - if token is valid
+    # - expire = True - if token is expired
+    # - auth = False, expire = False - token don't found
+
+    try:
+        token_getter = security.get_token_from_request(type="access", optional=False)
+        token = await token_getter(request)
+
+        logging.warning(token)
+
+        user = security.verify_token(token, verify_type=True)
+        logging.warning(user)
+
+        return {"message": "AUTHORIZED", "auth": True, "expire": False}
+
+    except JWTDecodeError as ex:
+        # токен истёк или повреждён
+        if "Signature has expired" in str(ex):
+            return {"message": "EXPIRED", "auth": False, "expire": True}
+        return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
+
+    except Exception as ex:
+        # токен отсутствует, невалиден, повреждён и т.д.
+        return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
 
 @router.get("/profile", dependencies=[Depends(security.access_token_required)])

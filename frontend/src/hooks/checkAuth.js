@@ -1,14 +1,37 @@
 import api from '../api';
+import { getCookie } from './getCookies';
 
-export default async function getAuth() {
+export default async function getAuth(csrfToken) {
   try {
-    const res = await api.get("/protected");
-    if (res.data.auth === true) {
-      return true
+    const res = await api.post("/protected", {}, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": csrfToken,
+      }
+    });
+    // if token is not expired
+    if (!res.data.expire) {
+      return {
+        "message": res.data.message,
+        "auth": res.data.auth,
+        "expire": res.data.expire
+      }
     } else {
-      return false
+      await api.post("/refresh", {
+        refresh_token: getCookie("my_refresh_token")
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+          "refresh_token": getCookie("my_refresh_token")
+        }
+      })
     }
-  } catch {
-    return false
+
+  } catch (error) {
+    console.error(error);
+    return {"message": "error", "auth": false}
   }
 };
