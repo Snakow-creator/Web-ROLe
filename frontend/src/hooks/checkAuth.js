@@ -10,25 +10,30 @@ export default async function getAuth(csrfToken) {
         "X-CSRF-TOKEN": csrfToken,
       }
     });
-    // if token is not expired
-    if (!res.data.expire) {
-      return {
-        "message": res.data.message,
-        "auth": res.data.auth,
-        "expire": res.data.expire
-      }
-    } else {
-      await api.post("/refresh", {
-        refresh_token: getCookie("my_refresh_token")
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": csrfToken,
-          "refresh_token": getCookie("my_refresh_token")
-        }
-      })
-    }
+    // // if token is not expired
+    // if (!res.data.expire) {
+    //   return {
+    //     "message": res.data.message,
+    //     "auth": res.data.auth,
+    //     "expire": res.data.expire
+    //   }
+    // } else {
+    //   await api.post("/refresh", {
+    //     refresh_token: getCookie("my_refresh_token")
+    //   }, {
+    //     withCredentials: true,
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       "X-CSRF-TOKEN": csrfToken,
+    //       "refresh_token": getCookie("my_refresh_token")
+    //     }
+    //   });
+
+    return {
+      "message": res.data.message,
+      "auth": res.data.auth,
+      "expire": res.data.expire
+    };
 
   } catch (error) {
     console.error(error);
