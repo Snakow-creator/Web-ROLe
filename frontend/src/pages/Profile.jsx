@@ -7,15 +7,6 @@ export default function Profile() {
   const [data, setData] = useState({});
 
   useEffect(() => {
-    // check auth
-    const checkAuth = async () => {
-      const res = await getAuth();
-      if (res === false) {
-        window.location.href = "/";
-      }
-    }
-    checkAuth();
-
     async function getData() {
       try {
         const res = await api.get("/profile");

@@ -24,7 +24,7 @@ class TokenAuthentication:
         access_token = deps.create_access_token(
             uid=user_id,
             data=data,
-            expiry=timedelta(seconds=600),
+            expiry=timedelta(minutes=10),
         )
         refresh_token = deps.create_refresh_token(uid=user_id) # refresh without data
 

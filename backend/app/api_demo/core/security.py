@@ -12,6 +12,7 @@ config = AuthXConfig(
     JWT_SECRET_KEY = settings.jwt_secret,
     JWT_ALGORITHM = "HS256",
     JWT_ACCESS_COOKIE_NAME = "my_access_token",
+    JWT_REFRESH_COOKIE_NAME = "my_refresh_token",
     JWT_TOKEN_LOCATION = ["headers", "query", "cookies", "json"]
 )
 

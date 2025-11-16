@@ -11,8 +11,7 @@ export default function Header() {
   const [auth, setAuth] = useState(null);
 
   const checkAuth = async () => {
-    const csrfToken = getCSRFCookie();
-    const res = await getAuth(csrfToken);
+    const res = await getAuth();
     setAuth(res.auth);
     console.log(res)
   }

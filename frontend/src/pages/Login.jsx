@@ -11,16 +11,6 @@ export default function Login() {
     password: ""
   });
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const res = await getAuth();
-      if (res === true) {
-        window.location.href = "/";
-      }
-    }
-    checkAuth();
-  }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

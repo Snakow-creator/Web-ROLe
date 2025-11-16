@@ -5,17 +5,6 @@ import getAuth from "../hooks/checkAuth";
 
 
 function InputPassword({name, placeholder, value, onChange}) {
-  useEffect(() => {
-    const checkAuth = async () => {
-      const res = await getAuth();
-      if (res === true) {
-        window.location.href = "/";
-      }
-    }
-    checkAuth();
-  }, []);
-
-
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
