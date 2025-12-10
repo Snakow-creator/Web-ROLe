@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import getMessage from "../hooks/getMessage";
 import getMessageLevel from "../hooks/getMessageLevel";
 import { getCSRFCookie } from "../hooks/getCookies";
+import { quests_types } from "../hooks/data"
 
 
 function Task({id, index, title, description, type}) {
@@ -75,7 +76,7 @@ function Task({id, index, title, description, type}) {
           "X-CSRF-TOKEN": CSRFToken
         }
       });
-      setMessage("Задача успешно удалена");
+      setMessage(`Задача ${title} успешно удалена`);
       setUserData(prev => ({
         ...prev,
         isDone: false
@@ -92,7 +93,7 @@ function Task({id, index, title, description, type}) {
         { index+1 }. { title }
       </p>
       <p>
-        Тип задания <b>{ type }</b>
+        Тип задания: <b>{ quests_types[type] }</b>
       </p>
       {description &&
        <p className="mt-1 font-mono">{ description }</p>

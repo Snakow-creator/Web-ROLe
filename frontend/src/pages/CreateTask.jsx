@@ -1,6 +1,8 @@
 import Button from "../components/Button";
 import { useState } from "react";
 import addTask from "../features/addTask";
+import { quests_types } from "../hooks/data"
+
 
 
 export default function AddTask () {
@@ -33,8 +35,11 @@ export default function AddTask () {
 
     const res = await addTask(formData);
     console.log(res);
-    setMessage(res.status === 200 ? "Задача успешно создана" : "Ошибка при создании задачи");
-  };
+    setMessage(res.status === 200
+      ? `Задача ${formData.title} сложности "${quests_types[formData.type]}" успешно создана`
+      : "Ошибка при создании задачи"
+    );
+    };
 
   function Radio ({children, value}) {
     return (

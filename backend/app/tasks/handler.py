@@ -72,5 +72,5 @@ async def delete_task(
         raise HTTPException(status_code=401, detail="Unauthorized, this task is not your")
 
     await task.delete()
-    return {"message": "Task deleted"}
+    return {"message": "Task deleted", "title": task.title}
 
