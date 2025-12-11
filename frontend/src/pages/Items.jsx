@@ -1,9 +1,11 @@
 import api from "../api";
 import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { getCSRFCookie } from "../hooks/getCookies";
 
 function Item({id, index, title, description, price, type}) {
   const [message, setMessage] = useState('');
+  const counter = useRef({});
 
   const buyItem = async () => {
     const CSRFToken = getCSRFCookie();
@@ -15,8 +17,21 @@ function Item({id, index, title, description, price, type}) {
           "Content-Type": "application/json",
           "X-CSRF-TOKEN": CSRFToken
         }
-      })
-      setMessage(res.data.message);
+      });
+      const title = res.data.title;
+
+      if (!counter.current[title]) {
+        counter.current[title] = 0;
+      }
+
+      counter.current[title]++;
+
+      if (counter.current[title] > 1) {
+        setMessage(`${res.data.message} x${counter.current[title]}`);
+      } else {
+        setMessage(res.data.message);
+      }
+
     } catch (error) {
       console.error(error);
     }

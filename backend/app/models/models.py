@@ -96,7 +96,7 @@ class Task(Document):
     completed: bool = Field(default=False, description="Завершен квест")
     inactive: bool = Field(default=False, description="Истекло время квеста")
     # сколько начислено поинтов за задание(если было выполнено)
-    awarded_points: int = Field(default=0, ge=0, description="Поинты за квест")
+    awarded_points: float = Field(default=0, ge=0, description="Поинты за квест")
 
     model_config = ConfigDict(extra="forbid")
 

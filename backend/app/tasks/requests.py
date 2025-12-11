@@ -2,19 +2,10 @@ from users.requests import edit_points, up_streak, edit_level
 from levels.hooks import current_level
 from repositories import task_repo, user_repo
 
-from tasks.data import tasks_expired
+from tasks.utils import weekly_bonus
 from baseTasks.data import baseTasks_points, task_bonus
 
 from datetime import datetime, timezone
-
-
-async def update_tasks():
-    tasks = await task_repo.find_all()
-
-    for task in tasks:
-        if tasks_expired[task.type] != None:
-            if (datetime.utcnow() - task.date).days >= tasks_expired[task.type]:
-                await task.update({"$set": {"inactive": True}})
 
 
 async def complete_task(id, name):
@@ -24,12 +15,21 @@ async def complete_task(id, name):
     # find active user tasks by type
     tasks = await task_repo.get_user_tasks_by_type(name, task.type)
 
+    complete_week = False
+
+
     # points for task
-    points = baseTasks_points[task.type]
+    points = baseTasks_points[task.type] * user.mul
 
     # check if task is last, then add bonus task
     if len(tasks) == 1:
         points = points * task_bonus
+
+    # check completed hard tasks and add weekly bonus
+    if len(tasks) == 1 and task.type == "hard":
+        await weekly_bonus(user)
+        complete_week = True
+
 
     # update last_streak if needed
     last_streak = user.last_streak.strftime("%Y-%m-%d")
@@ -55,13 +55,19 @@ async def complete_task(id, name):
         print(res)
         return {
             "message": "Task completed",
-            "up_level": True,
+            "isWeekly": True,
             "points": points,
             "xp": points,
-            "spoints_level": res["points"],
+            "spointsLevel": res["points"],
         }
 
-    return {"message": "Task completed", "up_level": False, "points": points, "xp": points}
+    return {
+        "message": "Task completed",
+        "isUpLevel": False,
+        "points": points,
+        "xp": points,
+        "isWeekly": complete_week
+    }
 
 
 async def uncomplete_task(id, name):

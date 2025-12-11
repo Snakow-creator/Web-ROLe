@@ -6,7 +6,7 @@ class UserRepository(BaseRepository):
     def __init__(self):
         super().__init__(User)
 
-    async def get_by_name(self, name):
+    async def get_by_name(self, name) -> User:
         return await self.find_one(User.name == name)
 
 

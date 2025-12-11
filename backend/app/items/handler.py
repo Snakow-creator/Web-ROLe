@@ -11,7 +11,7 @@ router = APIRouter(tags=['items'])
 async def list_items(
     user: User = Depends(security.get_current_subject)
 ):
-    return await get_items(user['level'])
+    return await get_items(user['level'], user['name'])
 
 
 @router.put('/buy/item/{id}', dependencies=[Depends(security.access_token_required)])

@@ -10,6 +10,8 @@ from repositories import task_repo
 from baseTasks.data import list_baseTasks
 from api_demo.core.security import security
 
+import logging
+
 
 router = APIRouter(tags=["tasks"])
 
@@ -19,6 +21,7 @@ async def tasks(
     user: User = Depends(security.get_current_subject),
 ):
     tasks = await task_repo.get_user_tasks(user["name"])
+
     return tasks
 
 

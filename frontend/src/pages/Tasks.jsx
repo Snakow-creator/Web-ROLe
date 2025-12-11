@@ -1,13 +1,15 @@
-import api from "../api";
 import { useState, useEffect } from "react";
+import api from "../api";
 import getMessage from "../hooks/getMessage";
 import getMessageLevel from "../hooks/getMessageLevel";
+import getWeeklyMessage from "../hooks/getWeeklyMessage";
 import { getCSRFCookie } from "../hooks/getCookies";
 import { quests_types } from "../hooks/data"
 
 
 function Task({id, index, title, description, type}) {
   const [message, setMessage] = useState('');
+  const [weeklyMessage, setWeeklyMessage] = useState('');
   const [spointsLevel, setSpointsLevel] = useState('');
   const [userData, setUserData] = useState({
     spoints: 0,
@@ -25,12 +27,18 @@ function Task({id, index, title, description, type}) {
           "X-CSRF-TOKEN": CSRFToken
         }
       });
-      if (res.data?.up_level) {
+      if (res.data?.isUpLevel) {
         setMessage(getMessageLevel());
-        setSpointsLevel(res.data.spoints_level)
+        setSpointsLevel(res.data.spointsLevel)
       } else {
         setMessage(getMessage());
-      } // finally logics
+      }
+
+      if (res.data?.isWeekly) {
+        setWeeklyMessage(getWeeklyMessage());
+      }
+
+      // finally logics
       setUserData({
         spoints: res.data.points,
         xp: res.data.xp,
@@ -104,11 +112,12 @@ function Task({id, index, title, description, type}) {
       <div className="space-y-1">
         {userData.xp > 0 && userData.spoints > 0 &&
         <>
-          <p>тест</p>
           <p>Награда: <b>+{ userData.spoints } Spoints +{ userData.xp } Xp</b> </p>
         </>}
         {spointsLevel && <p>Уровень повышен, награда: <b>+{ spointsLevel } Spoints</b></p>}
       </div>
+
+      {weeklyMessage && <p className="font-medium">{ weeklyMessage }</p>}
 
       {!userData.isDone ? (
         <>
