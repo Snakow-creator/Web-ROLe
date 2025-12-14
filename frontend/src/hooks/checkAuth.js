@@ -3,7 +3,13 @@ import { getCookie, getCSRFCookie, getCSRFResfreshCookie } from './getCookies';
 
 export default async function getAuth() {
   try {
-    const res = await api.get("/protected");
+    const TOKEN = getCookie("my_access_token");
+    const res = await api.get("/protected", {}, {
+      withCredentials: true,
+      headers: {
+        "Authorization": `Bearer ${TOKEN}`,
+      }
+    });
 
     // if token is not expired
     if (!res.data.expire) {
@@ -26,8 +32,7 @@ export default async function getAuth() {
       window.location.reload();
     }
 
-  } catch (error) {
-    console.error(error);
-    return {"message": "error", "auth": false}
+  } catch (err) {
+    console.error(err.response?.data || err.message);
   }
 };

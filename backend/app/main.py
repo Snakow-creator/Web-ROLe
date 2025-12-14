@@ -59,4 +59,4 @@ app.add_middleware(
 
 if __name__ == "__main__" :
     settings.collection_name = baseSettings.collection_name
-    uvicorn.run(app, host="localhost", port=7878)
+    uvicorn.run(app, host="127.0.0.1", port=7878)

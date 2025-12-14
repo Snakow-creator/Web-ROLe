@@ -21,10 +21,11 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await api.post("/login", formData)
+      await api.post("/login", formData, { withCredentials: true });
+
       window.location.href = "/";
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     }
   }
 

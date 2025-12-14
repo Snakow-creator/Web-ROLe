@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from authx import AuthXDependency
 from authx.exceptions import JWTDecodeError
 
@@ -24,7 +24,7 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/login")
 async def login(
-    creds: UserSchema, deps: AuthXDependency = Depends(security.get_dependency)
+    creds: UserSchema, response: Response
 ):
     if creds.name == "test" and creds.password == "testtest":
         user_id = "test"
@@ -39,7 +39,9 @@ async def login(
 
         else:
             return {"message": "Unauthorized", "error": "Invalid credentials"}
-    auth.authenticate_user(deps, user_id, data)
+
+    logging.warning(data)
+    auth.authenticate_user(response, user_id, data)
     return data
 
 

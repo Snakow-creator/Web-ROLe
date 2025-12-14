@@ -1,36 +1,54 @@
-from fastapi import Request
+from fastapi import Request, Response
 from authx import RequestToken, AuthXDependency
 from typing import Callable, Awaitable
 from datetime import timedelta
 
-from api_demo.core.security import security
+from api_demo.core.security import security, name_access_token, name_refresh_token
 
 
 OptTokenGetter = Callable[[Request], Awaitable[RequestToken | None]]
 
 get_optional_access_from_request: OptTokenGetter = security.get_token_from_request(
-    type = "access",
-    optional = False,
+    type="access",
+    optional=False,
 )
 
 
 class TokenAuthentication:
     def __init__(self):
-       self.get_optional_access_token = get_optional_access_from_request
+        self.get_optional_access_token = get_optional_access_from_request
 
     @staticmethod
-    def authenticate_user(deps: AuthXDependency, user_id: str, data: dict):
+    def authenticate_user(response: Response, user_id: str, data: dict):
         # 1. create tokens
-        access_token = deps.create_access_token(
+
+        access_token = security.create_access_token(
             uid=user_id,
             data=data,
             expiry=timedelta(minutes=10),
         )
-        refresh_token = deps.create_refresh_token(uid=user_id) # refresh without data
+        # refresh without data
+        refresh_token = security.create_refresh_token(
+            uid=user_id
+        )
 
         # 2. set cookies
-        deps.set_access_cookies(token=access_token)
-        deps.set_refresh_cookies(token=refresh_token)
+        response.set_cookie(
+            key=name_access_token,
+            value=access_token,
+            samesite="lax",
+            httponly=True,
+            secure=False, # True in production
+            max_age=10*60
+        )
+        response.set_cookie(
+            key=name_refresh_token,
+            value=refresh_token,
+            samesite="lax",
+            httponly=True,
+            secure=False, # True in production
+            max_age=14*24*60*60
+        )
 
     @staticmethod
     def logout_user(deps):
@@ -42,5 +60,6 @@ class TokenAuthentication:
     @staticmethod
     def refresh_user(deps, request):
         return deps.refresh_token(request=request)
+
 
 auth = TokenAuthentication()
