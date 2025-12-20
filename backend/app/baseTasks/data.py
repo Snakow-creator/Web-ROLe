@@ -1,6 +1,4 @@
-from baseTasks.requests import get_baseTasks
-
-list_baseTasks = get_baseTasks()
+list_baseTasks = ["simple", "common", "hard", "expert", "hardcore"]
 
 task_bonus = 1.5  # + 50% of points
 
