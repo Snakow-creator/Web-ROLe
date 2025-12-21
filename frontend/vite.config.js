@@ -8,7 +8,15 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // api remover if /api in url, return 0.0.0.0:7878
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:7878',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // remove /api
+      }
+    },
     host: "127.0.0.1",
     port: 5173
   }

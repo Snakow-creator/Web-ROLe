@@ -3,7 +3,9 @@ from authx import RequestToken, AuthXDependency
 from typing import Callable, Awaitable
 from datetime import timedelta
 
-from api_demo.core.security import security, name_access_token, name_refresh_token
+from api_demo.core.security import security, name_access_token, name_refresh_token, name_csrf_token
+
+import secrets
 
 
 OptTokenGetter = Callable[[Request], Awaitable[RequestToken | None]]
@@ -22,6 +24,8 @@ class TokenAuthentication:
     def authenticate_user(response: Response, user_id: str, data: dict):
         # 1. create tokens
 
+        csrf_token = secrets.token_urlsafe(32)
+
         access_token = security.create_access_token(
             uid=user_id,
             data=data,
@@ -29,10 +33,20 @@ class TokenAuthentication:
         )
         # refresh without data
         refresh_token = security.create_refresh_token(
-            uid=user_id
+            uid=user_id,
+            csrf=csrf_token
         )
 
         # 2. set cookies
+        response.set_cookie(
+            key=name_csrf_token,
+            value=csrf_token,
+            samesite="lax",
+            httponly=False,
+            secure=False, # True in production
+            max_age=14*24*60*60
+        )
+
         response.set_cookie(
             key=name_access_token,
             value=access_token,
@@ -49,6 +63,8 @@ class TokenAuthentication:
             secure=False, # True in production
             max_age=14*24*60*60
         )
+
+        return {"csrf_token": csrf_token}
 
     @staticmethod
     def logout_user(deps):

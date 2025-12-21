@@ -12,11 +12,9 @@ from repositories import user_repo
 from api_demo.auth.crypt import hash_password, verify_password
 from api_demo.auth.service import auth
 from api_demo.core.config import test_data
-from api_demo.core.security import security
+from api_demo.core.security import security, name_access_token
 
 from levels.data import which_my_role
-
-import logging
 
 
 router = APIRouter(tags=["auth"])
@@ -40,7 +38,6 @@ async def login(
         else:
             return {"message": "Unauthorized", "error": "Invalid credentials"}
 
-    logging.warning(data)
     auth.authenticate_user(response, user_id, data)
     return data
 
@@ -87,15 +84,14 @@ async def protected(request: Request):
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
     except Exception as ex:
-        logging.error(ex)
         # токен отсутствует, невалиден, повреждён и т.д.
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
 
 @router.post("/refresh")
 async def refresh(
+    response: Response,
     payload = Depends(security.refresh_token_required),
-    deps: AuthXDependency = Depends(security.get_dependency)
 ):
     # payload is decode Refresh JWT
     # refresh_token_required return refresh_token
@@ -104,13 +100,20 @@ async def refresh(
     user_id = payload.sub
     user = await UserObj.init_object(user_id)
 
-    new_access_token = deps.create_access_token(
+    new_access_token = security.create_access_token(
         uid=user_id,
         data=user.data,
         expiry=timedelta(minutes=10),
     )
 
-    deps.set_access_cookies(token=new_access_token)
+    response.set_cookie(
+        key=name_access_token,
+        value=new_access_token,
+        samesite="lax",
+        httponly=True,
+        secure=False, # True in production
+        max_age=10*60
+    )
 
     return {"message": "refresh", "status": 200}
 

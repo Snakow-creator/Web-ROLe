@@ -1,5 +1,5 @@
 import api from '../api';
-import { getCookie, getCSRFCookie, getCSRFResfreshCookie } from './getCookies';
+import { getCookie, getCSRFCookie } from './getCookies';
 
 export default async function getAuth() {
   try {
@@ -19,7 +19,7 @@ export default async function getAuth() {
         "expire": res.data.expire
       }
     } else {
-      const csrfResfreshToken = getCSRFResfreshCookie();
+      const csrfResfreshToken = getCSRFCookie();
 
       await api.post("/refresh", {}, {
         withCredentials: true,
