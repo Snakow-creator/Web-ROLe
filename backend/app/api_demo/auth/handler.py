@@ -106,6 +106,8 @@ async def refresh(
         expiry=timedelta(minutes=10),
     )
 
+    security.set_access_cookies
+
     response.set_cookie(
         key=name_access_token,
         value=new_access_token,
@@ -142,5 +144,4 @@ async def profile(
         }
         return data
     except Exception as ex:
-        print(ex)
         raise HTTPException(status_code=404, detail="Not authorized")

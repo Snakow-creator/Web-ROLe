@@ -28,13 +28,12 @@ class TokenAuthentication:
 
         access_token = security.create_access_token(
             uid=user_id,
-            data=data,
+            data={**data},
             expiry=timedelta(minutes=10),
         )
         # refresh without data
         refresh_token = security.create_refresh_token(
             uid=user_id,
-            csrf=csrf_token
         )
 
         # 2. set cookies
@@ -51,7 +50,7 @@ class TokenAuthentication:
             key=name_access_token,
             value=access_token,
             samesite="lax",
-            httponly=True,
+            httponly=True, # not visible to js
             secure=False, # True in production
             max_age=10*60
         )
@@ -59,7 +58,7 @@ class TokenAuthentication:
             key=name_refresh_token,
             value=refresh_token,
             samesite="lax",
-            httponly=True,
+            httponly=True, # not visible to js
             secure=False, # True in production
             max_age=14*24*60*60
         )

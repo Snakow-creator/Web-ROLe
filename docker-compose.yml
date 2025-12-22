@@ -1,7 +1,7 @@
 services:
   mongo:
     image: mongo:7.0
-    restart: unless-stopped
+    restart: always
     ports:
       - "27017:27017"
     volumes:
@@ -9,12 +9,11 @@ services:
 
   backend:
     image: web_role_api
+    restart: always
     build:
       context: ./backend
     ports:
       - "7878:7878"
-    environment:
-      MONGO_URI: mongodb://host.docker.internal:27017/webrole
     env_file:
     - backend/.env.docker
     depends_on:
@@ -22,6 +21,7 @@ services:
 
   frontend:
     image: web_role_frontend
+    restart: always
     build:
       context: ./frontend
     ports:

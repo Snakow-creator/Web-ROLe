@@ -22,7 +22,10 @@ name_access_token = config.JWT_ACCESS_COOKIE_NAME
 name_refresh_token = config.JWT_REFRESH_COOKIE_NAME
 name_csrf_token = config.JWT_ACCESS_CSRF_COOKIE_NAME
 
-security = AuthX(config=config, model=User)
+security = AuthX(
+    config=config,
+    model=User,
+)
 
 
 class RefreshForm(BaseModel):
