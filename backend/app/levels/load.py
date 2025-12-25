@@ -5,4 +5,9 @@ async def load_levels():
     for level in levels_data:
         if await Level.find_one(Level.level == level["level"]):
             continue
-        await Level.insert_one(level)
+        level_obj = Level(
+            level=level["level"],
+            xp=level["xp"],
+            role=level["role"],
+        )
+        await Level.insert_one(level_obj)

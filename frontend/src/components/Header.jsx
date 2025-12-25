@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getCSRFCookie, getCookie } from "../hooks/getCookies";
 
-import getAuth from '../hooks/checkAuth';
+import getAuth from '../features/checkAuth';
 import logo from '/logo.png' // пока не трогаем
 import api from '../api';
 
@@ -18,14 +17,9 @@ export default function Header() {
 
 
   const logout = async () => {
-    const csrfToken = getCSRFCookie();
-    const res = await api.post("/logout", {}, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": csrfToken,
-      }
-    });
+    await api.post("/logout");
+    localStorage.removeItem('access_token');
+
     setAuth(false);
     handleAuth();
   }

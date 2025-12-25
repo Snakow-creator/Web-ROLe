@@ -3,7 +3,6 @@ import api from "../api";
 import getMessage from "../hooks/getMessage";
 import getMessageLevel from "../hooks/getMessageLevel";
 import getWeeklyMessage from "../hooks/getWeeklyMessage";
-import { getCSRFCookie } from "../hooks/getCookies";
 import { quests_types } from "../hooks/data"
 
 
@@ -18,15 +17,9 @@ function Task({id, index, title, description, type}) {
   });
 
   const submitTask = async () => {
-    const CSRFToken = getCSRFCookie();
     try {
-      const res = await api.put(`/complete/task/${id}`, {}, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": CSRFToken
-        }
-      });
+      const res = await api.put(`/complete/task/${id}`, {});
+
       if (res.data?.isUpLevel) {
         setMessage(getMessageLevel());
         setSpointsLevel(res.data.spointsLevel)
@@ -52,15 +45,9 @@ function Task({id, index, title, description, type}) {
   }
 
   const unSubmitTask = async () => {
-    const CSRFToken = getCSRFCookie();
     try {
-      const res = await api.put(`/uncomplete/task/${id}`, {}, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": CSRFToken
-        }
-      });
+      await api.put(`/uncomplete/task/${id}`, {});
+
       setMessage("Вы вернули задачу");
       setSpointsLevel('')
       setUserData({
@@ -75,15 +62,9 @@ function Task({id, index, title, description, type}) {
   }
 
   const deleteTask = async () => {
-    const CSRFToken = getCSRFCookie();
     try {
-      await api.delete(`/delete/task/${id}`, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": CSRFToken
-        }
-      });
+      await api.delete(`/delete/task/${id}`);
+
       setMessage(`Задача ${title} успешно удалена`);
       setUserData(prev => ({
         ...prev,

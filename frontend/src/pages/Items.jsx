@@ -1,23 +1,16 @@
 import api from "../api";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import { getCSRFCookie } from "../hooks/getCookies";
+
 
 function Item({id, index, title, description, price, type}) {
   const [message, setMessage] = useState('');
   const counter = useRef({});
 
   const buyItem = async () => {
-    const CSRFToken = getCSRFCookie();
 
     try {
-      const res = await api.put(`/buy/item/${id}`, {}, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": CSRFToken
-        }
-      });
+      const res = await api.put(`/buy/item/${id}`);
       const title = res.data.title;
 
       if (!counter.current[title]) {

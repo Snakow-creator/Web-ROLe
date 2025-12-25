@@ -18,7 +18,11 @@ class User(Document):
     # множители и последний множитель
     mul: float = Field(default=1, ge=0)
     sale_shop: float = Field(default=1, ge=0)
-    last_mul: str | datetime = datetime.now(timezone.utc)
+    last_mul: datetime = datetime.now(timezone.utc)
+    # последние данные множителей
+    penult_mul: float = Field(default=1, ge=0)
+    penult_sale_shop: float = Field(default=1, ge=0)
+    penult_last_mul: datetime = datetime.now(timezone.utc)
     # завершенные задания
     complete_simple_tasks: int = Field(default=0, ge=0)
     complete_common_tasks: int = Field(default=0, ge=0)
@@ -95,6 +99,8 @@ class Task(Document):
     # пройдена ли задание или истекло
     completed: bool = Field(default=False, description="Завершен квест")
     inactive: bool = Field(default=False, description="Истекло время квеста")
+    # получен ли недельный бонус
+    is_weekly_bonus: bool = Field(default=False, description="Недельный бонус")
     # сколько начислено поинтов за задание(если было выполнено)
     awarded_points: float = Field(default=0, ge=0, description="Поинты за квест")
 

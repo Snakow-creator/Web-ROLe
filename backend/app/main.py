@@ -9,6 +9,7 @@ from tasks.utils import update_tasks
 from users.requests import users_days_and_last_mul_expired
 from base.utils import drop_tests_collection
 from routers import init_router, root
+from utils import load_data
 
 import beanie
 import uvicorn
@@ -32,10 +33,13 @@ async def main(app: FastAPI):
 
     logging.info("ROLe is starting...")
 
-    yield
-
     if collection == baseSettings.test_collection_name:
-        await drop_tests_collection()
+        await load_data()
+
+    yield
+    # end
+    # if collection == baseSettings.test_collection_name:
+    #     await drop_tests_collection()
     logging.info("ROLe is closing...")
 
 

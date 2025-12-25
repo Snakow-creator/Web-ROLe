@@ -2,7 +2,7 @@ from users.requests import edit_points, up_streak, edit_level
 from levels.hooks import current_level
 from repositories import task_repo, user_repo
 
-from tasks.utils import weekly_bonus
+from tasks.utils import weekly_bonus, unset_weekly_bonus
 from baseTasks.data import baseTasks_points, task_bonus
 
 from datetime import datetime, timezone
@@ -44,7 +44,8 @@ async def complete_task(id, name):
         {"$set": {
             "completed": True,
             "complete_date": datetime.now(timezone.utc),
-            "awarded_points": points
+            "awarded_points": points,
+            "is_weekly_bonus": complete_week
         }}
     )
 
@@ -76,10 +77,17 @@ async def uncomplete_task(id, name):
     user = await user_repo.get_by_name(name)
 
     points = task.awarded_points
+    complete_week = task.is_weekly_bonus
+
+    # if task is weekly bonus unset bonus
+    if task.is_weekly_bonus:
+        await unset_weekly_bonus(user)
+        complete_week = False
 
     # task update, do task is active
     await task.update(
         {"$set": {
+            "is_weekly_bonus": complete_week,
             "completed": False,
             "complete_date": None,
             "awarded_points": 0
