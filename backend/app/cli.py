@@ -7,6 +7,8 @@ from items.load import load_items
 
 import asyncclick as click
 
+__all__ = []
+
 
 @click.group()
 async def cli():

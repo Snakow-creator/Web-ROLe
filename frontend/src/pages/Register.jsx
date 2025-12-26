@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "../api";
 import Button from "../components/Button";
-import getAuth from "../hooks/checkAuth";
 
 
 function InputPassword({name, placeholder, value, onChange}) {
@@ -40,6 +39,7 @@ export default function Register() {
     password1: "",
     password2: ""
   })
+  const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +52,7 @@ export default function Register() {
 
     try {
       const response = await api.post("/register", formData)
+      setMessage("Вы успешно зарегистрировались");
       console.log(response);
 
     } catch (error) {
@@ -87,6 +88,7 @@ export default function Register() {
             onChange={ handleChange }/>
 
           <Button type="submit">Зарегистрироваться</Button>
+          { message && <p className="text-glass-500 text-bold">{ message }</p> }
       </form>
     </>
   );

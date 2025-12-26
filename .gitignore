@@ -67,6 +67,7 @@ Thumbs.db
 # custom
 .vscode
 .env
+.env.docker
 pyproject.toml
 pytest.ini
 tests/

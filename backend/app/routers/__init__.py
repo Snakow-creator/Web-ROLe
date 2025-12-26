@@ -5,7 +5,7 @@ from tasks.handler import router as tasks_router
 from items.handler import router as items_router
 
 
-# create init_router
+# create init routers
 init_router = APIRouter()
 
 # include routers
@@ -13,4 +13,3 @@ init_router.include_router(root.router)
 init_router.include_router(auth_router)
 init_router.include_router(tasks_router)
 init_router.include_router(items_router)
-

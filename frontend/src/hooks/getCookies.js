@@ -15,14 +15,5 @@ export function getCookie(cname) {
       return "";
 }
 
-// Function to get CSRF token from cookie
-export function getCSRFCookie() {
-return getCookie("csrf_access_token");
-}
-
-// Function to get CSRF refresh token from cookie
-export function getCSRFResfreshCookie() {
-return getCookie("csrf_refresh_token");
-}
 
 

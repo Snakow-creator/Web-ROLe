@@ -12,12 +12,9 @@ from repositories import user_repo
 from api_demo.auth.crypt import hash_password, verify_password
 from api_demo.auth.service import auth
 from api_demo.core.config import test_data
-from api_demo.core.security import security
+from api_demo.core.security import security, RefreshForm
 
 from levels.data import which_my_role
-
-import logging
-
 
 router = APIRouter(tags=["auth"])
 
@@ -28,7 +25,7 @@ async def login(
 ):
     if creds.name == "test" and creds.password == "testtest":
         user_id = "test"
-        data = {**test_data}
+        data = test_data
 
     else:
         user = await user_repo.get_by_name(creds.name)
@@ -40,9 +37,8 @@ async def login(
         else:
             return {"message": "Unauthorized", "error": "Invalid credentials"}
 
-    logging.warning(data)
-    auth.authenticate_user(response, user_id, data)
-    return data
+    tokens = await auth.authenticate_user(response, user_id, data)
+    return {**data, "access_token": tokens["access_token"]}
 
 
 @router.post("/logout", dependencies=[Depends(security.get_dependency)])
@@ -87,32 +83,45 @@ async def protected(request: Request):
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
     except Exception as ex:
-        logging.error(ex)
         # токен отсутствует, невалиден, повреждён и т.д.
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
 
 @router.post("/refresh")
 async def refresh(
-    payload = Depends(security.refresh_token_required),
-    deps: AuthXDependency = Depends(security.get_dependency)
+    request: Request,
+    refresh_data: RefreshForm = None,
 ):
-    # payload is decode Refresh JWT
-    # refresh_token_required return refresh_token
-    # payload is decode Access JWT
+    # check Refresh token in the Header auth
 
-    user_id = payload.sub
-    user = await UserObj.init_object(user_id)
+    try:
+        # First try to get the refresh token from the Authorization header
+        try:
+            refresh_payload = await security.refresh_token_required(request)
+        except Exception as header_error:
+            if not refresh_data or not refresh_data.refresh_token:
+                # If we don't have a token in either place, raise the original error
+                raise header_error
 
-    new_access_token = deps.create_access_token(
-        uid=user_id,
-        data=user.data,
-        expiry=timedelta(minutes=10),
-    )
-
-    deps.set_access_cookies(token=new_access_token)
-
-    return {"message": "refresh", "status": 200}
+            # Manually decode and verify the refresh token
+            token = refresh_data.refresh_token
+            refresh_payload = security.verify_token(
+                token,
+                verify_type=True,
+                type="refresh"
+            )
+        # init user
+        user = await UserObj.init_object(refresh_payload.sub)
+        data = user.data
+        # Create a new access token
+        access_token = security.create_access_token(
+            uid=refresh_payload.sub,
+            data=data,
+            expiry=timedelta(minutes=10),
+        )
+        return {"message": "update access token", "access_token": access_token}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 
 @router.get("/profile", dependencies=[Depends(security.access_token_required)])
@@ -139,5 +148,4 @@ async def profile(
         }
         return data
     except Exception as ex:
-        print(ex)
         raise HTTPException(status_code=404, detail="Not authorized")

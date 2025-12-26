@@ -16,10 +16,16 @@ config = AuthXConfig(
     JWT_TOKEN_LOCATION=["headers", "query", "cookies", "json"],
 )
 
+
+
 name_access_token = config.JWT_ACCESS_COOKIE_NAME
 name_refresh_token = config.JWT_REFRESH_COOKIE_NAME
+name_csrf_token = config.JWT_ACCESS_CSRF_COOKIE_NAME
 
-security = AuthX(config=config, model=User)
+security = AuthX(
+    config=config,
+    model=User,
+)
 
 
 class RefreshForm(BaseModel):
@@ -29,4 +35,6 @@ class RefreshForm(BaseModel):
 # create query in mongodb
 @security.set_subject_getter
 def get_user_from_uid(uid: str) -> User:
-    return users.find_one({"name": uid})
+    user = users.find_one({"name": uid})
+    print("UID FROM TOKEN:", repr(uid), user)
+    return user

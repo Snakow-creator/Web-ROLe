@@ -1,6 +1,5 @@
 import Button from "../components/Button";
-import { useState, useEffect, use } from "react";
-import getAuth from "../hooks/checkAuth";
+import { useState } from "react";
 import api from "../api";
 
 
@@ -21,7 +20,9 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await api.post("/login", formData, { withCredentials: true });
+      const res = await api.post("/login", formData);
+
+      localStorage.setItem("access_token", res.data.access_token);
 
       window.location.href = "/";
     } catch (err) {
