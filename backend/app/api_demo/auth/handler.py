@@ -16,8 +16,6 @@ from api_demo.core.security import security, RefreshForm
 
 from levels.data import which_my_role
 
-import logging
-
 router = APIRouter(tags=["auth"])
 
 
@@ -75,21 +73,17 @@ async def protected(request: Request):
         security.verify_token(
             payload, verify_type=True, verify_csrf=False
         )
-        logging.warning("true + False")
 
         return {"message": "AUTHORIZED", "auth": True, "expire": False}
 
     except JWTDecodeError as ex:
         # токен истёк или повреждён
         if "Signature has expired" in str(ex):
-            logging.warning("False + True")
             return {"message": "EXPIRED", "auth": False, "expire": True}
-        logging.warning("False + False")
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
     except Exception as ex:
         # токен отсутствует, невалиден, повреждён и т.д.
-        logging.warning("False + False")
         return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
 
 
