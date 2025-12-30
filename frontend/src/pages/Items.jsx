@@ -1,4 +1,5 @@
 import api from "../api";
+import Button from "../components/Button";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 
@@ -48,12 +49,11 @@ function Item({id, index, title, description, price, type}) {
 
       {message && <p>{message}</p>}
 
-      <button
-        className="block mt-2 bg-gray-200 px-1 rounded-md border border-gray-600"
+      <Button
         onClick={buyItem}
         type='button'>
         Приобрести
-      </button>
+      </Button>
     </div>
   )
 }
