@@ -14,7 +14,6 @@ export default async function getAuth() {
     }
 
     const res = await api.get(`/protected`);
-    console.warn(res)
 
     // if token is not expired
     if (!res.data.expire) {
