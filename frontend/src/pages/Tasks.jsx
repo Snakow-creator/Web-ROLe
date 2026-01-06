@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import api from "../api";
+
+import { getTasks, completeTask, uncompleteTask, deleteTask } from "../services/apiService/tasks";
+
 import getMessage from "../hooks/getMessage";
 import getMessageLevel from "../hooks/getMessageLevel";
 import getWeeklyMessage from "../hooks/getWeeklyMessage";
 import { quests_types } from "../hooks/data"
 
 
-function Task({id, index, title, description, type}) {
+function Task(creds) {
   const [message, setMessage] = useState('');
   const [weeklyMessage, setWeeklyMessage] = useState('');
   const [spointsLevel, setSpointsLevel] = useState('');
@@ -16,10 +18,13 @@ function Task({id, index, title, description, type}) {
     isDone: false
   });
 
-  const submitTask = async () => {
-    try {
-      const res = await api.put(`/complete/task/${id}`, {});
+  const onError = async (error) => {
+    console.error(error);
+    setMessage("Что-то пошло не так");
+  }
 
+  const submitTask = async () => {
+    const onCompleteTask =  async (res) => {
       if (res.data?.isUpLevel) {
         setMessage(getMessageLevel());
         setSpointsLevel(res.data.spointsLevel)
@@ -37,17 +42,17 @@ function Task({id, index, title, description, type}) {
         xp: res.data.xp,
         isDone: true
       });
-
-    } catch (error) {
-      console.error(error);
-      setMessage("Что-то пошло не так");
     }
+
+    await completeTask({
+      id: creds.id,
+      onCompleteTask: onCompleteTask,
+      onError: onError
+    })
   }
 
   const unSubmitTask = async () => {
-    try {
-      await api.put(`/uncomplete/task/${id}`, {});
-
+    const onUncompleteTask = async () => {
       setMessage("Вы вернули задачу");
       setSpointsLevel('')
       setUserData({
@@ -55,50 +60,54 @@ function Task({id, index, title, description, type}) {
         xp: 0,
         isDone: false
       })
-    } catch (error) {
-      console.error(error);
-      setMessage("Что-то пошло не так");
     }
+
+    await uncompleteTask({
+      id: creds.id,
+      onUncompleteTask: onUncompleteTask,
+      onError: onError
+    })
   }
 
-  const deleteTask = async () => {
-    try {
-      await api.delete(`/delete/task/${id}`);
-
+  const delTask = async () => {
+    const onDeleteTask = async (title) => {
       setMessage(`Задача ${title} успешно удалена`);
       setUserData(prev => ({
         ...prev,
         isDone: false
       }))
-    } catch (error) {
-      console.error(error)
-      setMessage("Что-то пошло не так");
     }
+
+    await deleteTask({
+      id: creds.id,
+      onDeleteTask: onDeleteTask,
+      onError: onError
+    })
   }
 
   return (
     <div>
       <p className="font-bold text-lg">
-        { index+1 }. { title }
+        {creds.index + 1}. {creds.title}
       </p>
       <p>
-        Тип задания: <b>{ quests_types[type] }</b>
+        Тип задания: <b>{quests_types[creds.type]}</b>
       </p>
-      {description &&
-       <p className="mt-1 font-mono">{ description }</p>
+      {creds.description &&
+        <p className="mt-1 font-mono">{creds.description}</p>
       }
 
-      {message && <p className="font-medium">{ message }</p>}
+      {message && <p className="font-medium">{message}</p>}
 
       <div className="space-y-1">
         {userData.xp > 0 && userData.spoints > 0 &&
-        <>
-          <p>Награда: <b>+{ userData.spoints } Spoints +{ userData.xp } Xp</b> </p>
-        </>}
-        {spointsLevel && <p>Уровень повышен, награда: <b>+{ spointsLevel } Spoints</b></p>}
+          <>
+            <p>Награда: <b>+{userData.spoints} Spoints +{userData.xp} Xp</b> </p>
+          </>}
+        {spointsLevel && <p>Уровень повышен, награда: <b>+{spointsLevel} Spoints</b></p>}
       </div>
 
-      {weeklyMessage && <p className="font-medium">{ weeklyMessage }</p>}
+      {weeklyMessage && <p className="font-medium">{weeklyMessage}</p>}
 
       {!userData.isDone ? (
         <>
@@ -110,7 +119,7 @@ function Task({id, index, title, description, type}) {
           </button>
           <button
             className="block mt-2 bg-red-500 px-1 rounded-md border border-black"
-            onClick={deleteTask}
+            onClick={delTask}
             type='button'>
             Удалить
           </button>
@@ -132,15 +141,11 @@ export default function Tasks() {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await api.get("/tasks");
-        setTasks(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchTasks();
+    const onFinish = (data) => {
+      setTasks(data);
+    }
+
+    getTasks({onFinish});
   }, []);
 
   return (

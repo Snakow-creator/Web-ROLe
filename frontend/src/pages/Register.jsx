@@ -1,9 +1,9 @@
 import { useState } from "react";
-import api from "../api";
+import api from "../services/apiService/api";
 import Button from "../components/Button";
 
 
-function InputPassword({name, placeholder, value, onChange}) {
+function InputPassword({ name, placeholder, value, onChange }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
@@ -14,20 +14,20 @@ function InputPassword({name, placeholder, value, onChange}) {
     <div>
       <span className="w-full relative">
         <input
-          type={ showPassword ? "text" : "password"}
-          name={ name }
-          placeholder={ placeholder }
-          value={ value }
+          type={showPassword ? "text" : "password"}
+          name={name}
+          placeholder={placeholder}
+          value={value}
           minLength="8"
           maxLength="20"
-          onChange={ onChange }
-          className="border rounded px-1 py-0.5"/>
-          <button
-              type="button"
-              onClick={ handleShowPassword }
-              className="absolute right-2 translate-y-1 h-full text-gray-600 pointer font-bold text-2xl rounded-full"
-              >*
-          </button>
+          onChange={onChange}
+          className="border rounded px-1 py-0.5" />
+        <button
+          type="button"
+          onClick={handleShowPassword}
+          className="absolute right-2 translate-y-1 h-full text-gray-600 pointer font-bold text-2xl rounded-full"
+        >*
+        </button>
       </span>
     </div>
   )
@@ -44,7 +44,8 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
-      ...prev, [name]: value }));
+      ...prev, [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -65,30 +66,30 @@ export default function Register() {
     <>
       <h1 className="text-3xl font-extrabold">Регистрация</h1>
 
-      <form onSubmit={ handleSubmit } className="mt-2">
-          <input
-            type="text"
-            placeholder="Ник"
-            className="block border rounded px-1 py-0.5"
-            name="name"
-            value={ formData.name }
-            onChange={ handleChange }
-          />
+      <form onSubmit={handleSubmit} className="mt-2">
+        <input
+          type="text"
+          placeholder="Ник"
+          className="block border rounded px-1 py-0.5"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+        />
 
-          <InputPassword
-            name="password1"
-            placeholder="Пароль"
-            value={ formData.password1 }
-            onChange={ handleChange }/>
+        <InputPassword
+          name="password1"
+          placeholder="Пароль"
+          value={formData.password1}
+          onChange={handleChange} />
 
-          <InputPassword
-            name="password2"
-            placeholder="Подтвердите пароль"
-            value={ formData.password2 }
-            onChange={ handleChange }/>
+        <InputPassword
+          name="password2"
+          placeholder="Подтвердите пароль"
+          value={formData.password2}
+          onChange={handleChange} />
 
-          <Button type="submit">Зарегистрироваться</Button>
-          { message && <p className="text-glass-500 text-bold">{ message }</p> }
+        <Button type="submit">Зарегистрироваться</Button>
+        {message && <p className="text-glass-500 text-bold">{message}</p>}
       </form>
     </>
   );

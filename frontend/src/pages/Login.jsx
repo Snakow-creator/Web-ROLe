@@ -1,6 +1,6 @@
 import Button from "../components/Button";
 import { useState } from "react";
-import api from "../api";
+import { login } from "../services/apiService/auth";
 
 
 export default function Login() {
@@ -13,21 +13,14 @@ export default function Login() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
-      ...prev, [name]: value }));
+      ...prev, [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await api.post("/login", formData);
-
-      localStorage.setItem("access_token", res.data.access_token);
-
-      window.location.href = "/";
-    } catch (err) {
-      console.error(err);
-    }
+    await login({ formData });
   }
 
   const handleShowPassword = () => {
@@ -45,29 +38,29 @@ export default function Login() {
           id="name"
           name="name"
           placeholder="Ник"
-          value={ formData.name }
-          onChange={ handleChange }
+          value={formData.name}
+          onChange={handleChange}
           className="block border rounded px-1 py-0.5" />
 
         <span className="w-full relative">
           <input
-            type={ showPassword ? "text" : "password" }
+            type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             placeholder="Пароль"
             autoComplete="off"
-            value={ formData.pword }
+            value={formData.pword}
             minLength="8"
             maxLength="20"
-            onChange={ handleChange }
-            className="border rounded px-1 py-0.5"/>
-            <button
-                type="button"
-                onClick={ handleShowPassword }
-                className="absolute right-2 translate-y-1 h-full text-gray-600 pointer font-bold text-2xl rounded-full"
-                >*
-            </button>
-          </span>
+            onChange={handleChange}
+            className="border rounded px-1 py-0.5" />
+          <button
+            type="button"
+            onClick={handleShowPassword}
+            className="absolute right-2 translate-y-1 h-full text-gray-600 pointer font-bold text-2xl rounded-full"
+          >*
+          </button>
+        </span>
 
         <Button type="submit">Вход</Button>
       </form>

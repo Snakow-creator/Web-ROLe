@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessToken, getCSRFAccessToken } from "./hooks/getTokens";
+import { getAccessToken, getCSRFAccessToken } from "../../hooks/getTokens";
 
 
 // create connection with backend
