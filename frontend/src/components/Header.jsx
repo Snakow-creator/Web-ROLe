@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-import getAuth from '../features/checkAuth';
+import { logout, getAuth } from '../services/apiService/auth';
 import logo from '/logo.png' // пока не трогаем
-import api from '../api';
 
 export default function Header() {
   const [bar, setBar] = useState(<></>);
@@ -15,14 +14,15 @@ export default function Header() {
     console.log(res)
   }
 
+  const logoutUser = async () => {
+    const setAuthFalse = () => {
+      setAuth(false);
+    }
 
-  const logout = async () => {
-    await api.post("/logout");
-    localStorage.removeItem('access_token');
-
-    setAuth(false);
-    handleAuth();
+    await logout(setAuthFalse);
   }
+
+
 
   const handleAuth = () => {
     if (auth) {
@@ -32,7 +32,7 @@ export default function Header() {
           <h3><Link to="/add/task" className="font-bold">добавить задачу</Link></h3>
           <h3><Link to="/tasks" className='font-bold'>мои задачи</Link></h3>
           <h3><Link to="/items" className='font-bold'>магазин</Link></h3>
-          <h3><button className='cursor-pointer font-bold' onClick={logout}>выйти</button></h3>
+          <h3><button className='cursor-pointer font-bold' onClick={logoutUser}>выйти</button></h3>
         </>
       )
     } else {

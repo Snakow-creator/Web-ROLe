@@ -1,7 +1,10 @@
-import api from '../api';
-import { getAccessToken } from '../hooks/getTokens';
+import api from './api';
+import { getAccessToken } from '../../hooks/getTokens';
 
-export default async function getAuth() {
+// check auth
+// if auth=false, user is not auth
+// if expire=true, token is expired, refresh it
+export async function getAuth() {
   try {
     const accessToken = getAccessToken();
 
@@ -14,7 +17,6 @@ export default async function getAuth() {
     }
 
     const res = await api.get(`/protected`);
-    console.warn(res)
 
     // if token is not expired
     if (!res.data.expire) {
@@ -24,15 +26,10 @@ export default async function getAuth() {
         "expire": res.data.expire
       }
     } else {
-
       const res = await api.post("/refresh");
-
-      console.warn(res)
 
       localStorage.removeItem('access_token');
       localStorage.setItem("access_token", res.data.access_token);
-
-      console.log("refresh access_token")
 
       // reload page with new access token
       window.location.reload();
@@ -42,3 +39,25 @@ export default async function getAuth() {
     console.error(err.response?.data || err.message);
   }
 };
+
+
+export const login = async (creds) => {
+  try {
+    const res = await api.post("/login", creds.formData);
+
+    localStorage.setItem("access_token", res.data.access_token);
+    window.location.href = "/";
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+export const logout = async (creds) => {
+  const res = await api.post("/logout");
+
+  localStorage.removeItem('access_token');
+  creds.onFinish();
+
+  return res
+}

@@ -1,9 +1,10 @@
-import api from "../api";
+import api from "../services/apiService/api";
+import Button from "../components/Button";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 
 
-function Item({id, index, title, description, price, type}) {
+function Item({ id, index, title, description, price, type }) {
   const [message, setMessage] = useState('');
   const counter = useRef({});
 
@@ -33,27 +34,26 @@ function Item({id, index, title, description, price, type}) {
   return (
     <div>
       <p className="font-bold text-lg">
-        { index }. { title }
+        {index}. {title}
       </p>
 
       <p className="font-bold">
-        Тип: { type }
+        Тип: {type}
       </p>
 
-      <p className="font-sans">{ description }</p>
+      <p className="font-sans">{description}</p>
 
       <p>
-        Цена: { price }
+        Цена: {price}
       </p>
 
       {message && <p>{message}</p>}
 
-      <button
-        className="block mt-2 bg-gray-200 px-1 rounded-md border border-gray-600"
+      <Button
         onClick={buyItem}
         type='button'>
         Приобрести
-      </button>
+      </Button>
     </div>
   )
 }
@@ -81,7 +81,7 @@ export default function Items() {
           <Item
             key={item._id}
             id={item._id}
-            index={index+1}
+            index={index + 1}
             title={item.title}
             description={item.description}
             price={item.price}
