@@ -48,7 +48,6 @@ pip-wheel-metadata/
 # ====================
 # Если вдруг дампы БД попадут в проект
 *.bson
-*.json
 *.csv
 dump/
 backups/
