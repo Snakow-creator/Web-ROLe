@@ -8,6 +8,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// перехват запросов
 api.interceptors.request.use((config) => {
   const accessToken = getAccessToken();
 

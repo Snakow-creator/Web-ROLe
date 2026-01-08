@@ -1,8 +1,6 @@
-from datetime import timedelta
-
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from authx import AuthXDependency
-from authx.exceptions import JWTDecodeError
 
 from models.models import User
 from models.schemas import UserSchema, RegisterUserSchema
@@ -12,7 +10,7 @@ from repositories import user_repo
 from api_demo.auth.crypt import hash_password, verify_password
 from api_demo.auth.service import auth
 from api_demo.core.config import test_data
-from api_demo.core.security import security, RefreshForm
+from api_demo.core.security import security
 
 from levels.data import which_my_role
 
@@ -20,9 +18,7 @@ router = APIRouter(tags=["auth"])
 
 
 @router.post("/login")
-async def login(
-    creds: UserSchema, response: Response
-):
+async def login(creds: UserSchema):
     if creds.name == "test" and creds.password == "testtest":
         user_id = "test"
         data = test_data
@@ -37,7 +33,7 @@ async def login(
         else:
             return {"message": "Unauthorized", "error": "Invalid credentials"}
 
-    tokens = await auth.authenticate_user(response, user_id, data)
+    tokens = await auth.authenticate_user(user_id, data)
     return {**data, "access_token": tokens["access_token"]}
 
 
@@ -58,70 +54,14 @@ async def register(creds: RegisterUserSchema):
 
 
 @router.get("/protected")
-async def protected(request: Request):
-    # Check if token is valid:
-
-    # - auth = True - if token is valid
-    # - expire = True - if token is expired
-    # - auth = False, expire = False - token don't found
-
-    try:
-        token_getter = security.get_token_from_request(type="access", optional=False)
-        payload = await token_getter(request)
-
-        # check if token is not expired
-        security.verify_token(
-            payload, verify_type=True, verify_csrf=False
-        )
-
-        return {"message": "AUTHORIZED", "auth": True, "expire": False}
-
-    except JWTDecodeError as ex:
-        # токен истёк или повреждён
-        if "Signature has expired" in str(ex):
-            return {"message": "EXPIRED", "auth": False, "expire": True}
-        return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
-
-    except Exception as ex:
-        # токен отсутствует, невалиден, повреждён и т.д.
-        return {"message": "UNAUTHORIZED", "auth": False, "expire": False}
-
-
-@router.post("/refresh")
-async def refresh(
+async def protected(
     request: Request,
-    refresh_data: RefreshForm = None,
+    res = Depends(auth.safe_access_token_getter),
 ):
-    # check Refresh token in the Header auth
+    if isinstance(res, JSONResponse):
+        return res
 
-    try:
-        # First try to get the refresh token from the Authorization header
-        try:
-            refresh_payload = await security.refresh_token_required(request)
-        except Exception as header_error:
-            if not refresh_data or not refresh_data.refresh_token:
-                # If we don't have a token in either place, raise the original error
-                raise header_error
-
-            # Manually decode and verify the refresh token
-            token = refresh_data.refresh_token
-            refresh_payload = security.verify_token(
-                token,
-                verify_type=True,
-                type="refresh"
-            )
-        # init user
-        user = await UserObj.init_object(refresh_payload.sub)
-        data = user.data
-        # Create a new access token
-        access_token = security.create_access_token(
-            uid=refresh_payload.sub,
-            data=data,
-            expiry=timedelta(minutes=10),
-        )
-        return {"message": "update access token", "access_token": access_token}
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+    return {"message": "AUTHORIZED", "auth": True, "expire": False}
 
 
 @router.get("/profile", dependencies=[Depends(security.access_token_required)])

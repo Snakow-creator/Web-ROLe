@@ -1,4 +1,4 @@
-import api from "../services/apiService/api";
+import { profile } from "../services/apiService/profile";
 import { useState, useEffect } from "react";
 
 
@@ -6,15 +6,10 @@ export default function Profile() {
   const [data, setData] = useState({});
 
   useEffect(() => {
-    async function getData() {
-      try {
-        const res = await api.get("/profile");
-        setData(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getData();
+    const setCurrentData = (data) => {
+      setData(data);
+    }
+    profile(setCurrentData);
   }, []);
 
   return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../services/apiService/api";
+import { register } from "../services/apiService/auth";
 import Button from "../components/Button";
 
 
@@ -51,14 +51,20 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await api.post("/register", formData)
+    const successSubmit = () => {
       setMessage("Вы успешно зарегистрировались");
-      console.log(response);
-
-    } catch (error) {
-      console.error(error);
     }
+
+    if (formData.password1 !== formData.password2) {
+      setMessage("Пароли не совпадают");
+      return;
+    }
+
+    await register({
+      formData: formData,
+      successSubmit: successSubmit,
+    });
+
   }
 
 

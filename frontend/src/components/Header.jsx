@@ -19,7 +19,7 @@ export default function Header() {
       setAuth(false);
     }
 
-    await logout(setAuthFalse);
+    await logout({setAuthFalse});
   }
 
 

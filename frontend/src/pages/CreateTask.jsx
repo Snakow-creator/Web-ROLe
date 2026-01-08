@@ -34,7 +34,7 @@ export default function AddTask() {
     }
 
     const res = await addTask(formData);
-    console.log(res);
+    
     setMessage(res.status === 200
       ? `Задача ${formData.title} сложности "${quests_types[formData.type]}" успешно создана`
       : "Ошибка при создании задачи"
