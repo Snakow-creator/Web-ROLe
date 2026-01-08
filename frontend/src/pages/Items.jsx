@@ -1,6 +1,6 @@
-import api from "../services/apiService/api";
 import Button from "../components/Button";
 import { useState, useEffect } from "react";
+import { fetchBuyItem, fetchItems } from "../services/apiService/items";
 import { useRef } from "react";
 
 
@@ -8,27 +8,22 @@ function Item({ id, index, title, description, price, type }) {
   const [message, setMessage] = useState('');
   const counter = useRef({});
 
-  const buyItem = async () => {
+  const purchaseItem = async () => {
+    const res = await fetchBuyItem(id);
+    const title = res.data.title;
 
-    try {
-      const res = await api.put(`/buy/item/${id}`);
-      const title = res.data.title;
-
-      if (!counter.current[title]) {
-        counter.current[title] = 0;
-      }
-
-      counter.current[title]++;
-
-      if (counter.current[title] > 1) {
-        setMessage(`${res.data.message} x${counter.current[title]}`);
-      } else {
-        setMessage(res.data.message);
-      }
-
-    } catch (error) {
-      console.error(error);
+    if (!counter.current[title]) {
+      counter.current[title] = 0;
     }
+
+    counter.current[title]++;
+
+    if (counter.current[title] > 1) {
+      setMessage(`${res.data.message} x${counter.current[title]}`);
+    } else {
+      setMessage(res.data.message);
+    }
+
   }
 
   return (
@@ -50,7 +45,7 @@ function Item({ id, index, title, description, price, type }) {
       {message && <p>{message}</p>}
 
       <Button
-        onClick={buyItem}
+        onClick={purchaseItem}
         type='button'>
         Приобрести
       </Button>
@@ -62,15 +57,11 @@ export default function Items() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const res = await api.get("/items");
-        setItems(res.data);
-      } catch (error) {
-        console.log(error)
-      }
-    };
-    fetchItems();
+    const setCurrentItems = (data) => {
+      setItems(data);
+    }
+
+    fetchItems(setCurrentItems);
   }, []);
 
   return (

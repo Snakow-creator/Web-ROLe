@@ -19,9 +19,9 @@ export function getCSRFAccessToken() {
       return null
     }
 
-    console.warn("заебись работает")
     return payload.csrf
   } catch (e) {
     console.error("Failed to decode JWT or extract CSRF token");
   }
 }
+

@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 
 from models.models import User, Level, ShopItem, BaseTask, Task, Item
 from models.settings import settings, baseSettings
+from base.utils import drop_tests_collection
 from tasks.utils import update_tasks
 from users.requests import users_days_and_last_mul_expired
-from base.utils import drop_tests_collection
-from routers import init_router, root
+from api_demo.core.security import load_security_handle_errors
+from routers import init_router
 from utils import load_data
 
 import beanie
@@ -30,6 +31,9 @@ async def main(app: FastAPI):
     # expire tasks and users data
     await update_tasks()
     await users_days_and_last_mul_expired()
+
+    # init handle errors
+    load_security_handle_errors(app)
 
     logging.info("ROLe is starting...")
 
