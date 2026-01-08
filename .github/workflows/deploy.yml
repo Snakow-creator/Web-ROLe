@@ -1,0 +1,100 @@
+name: ROLe СI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      MONGO_URL: mongodb://localhost:27017/role
+      PYTHONPATH: backend/app
+
+
+    steps:
+      # -------------------------
+      # checkout
+      # -------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------
+      # Python FastAPI
+      # -------------------------
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # тесты(пока не используются)
+      # - name: Run tests
+      #   working-directory: backend
+      #   run: pytest
+
+      # Deploy backend
+      - name: Run FastAPI (smoke test)
+        working-directory: backend
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 -- port 7878 &
+          sleep 5
+
+      # ------------------------
+      # Node / Vite / Tailwind
+      # ------------------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      # -----------------------
+      # Deploy frontend to GitHub Pages
+      # -----------------------
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+
+
+
