@@ -62,7 +62,7 @@ jobs:
       - name: Run FastAPI (smoke test)
         working-directory: backend
         run: |
-          uvicorn app.main:app --host 127.0.0.1 -- port 7878 &
+          uvicorn app.main:app --host 127.0.0.1 --port 7878 &
           sleep 5
 
       # ------------------------

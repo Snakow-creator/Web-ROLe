@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import { logout, getAuth } from '../services/apiService/auth';
-import logo from '/logo.png' // пока не трогаем
 
 export default function Header() {
   const [bar, setBar] = useState(<></>);
+  const [navigation, setNavigation] = useState(<></>);
   const [auth, setAuth] = useState(null);
 
   const checkAuth = async () => {
@@ -22,17 +22,30 @@ export default function Header() {
     await logout({setAuthFalse});
   }
 
+  const handleNavigation = () => {
+    // if auth is true
+    setNavigation(auth &&
+      // navigation, near right with logo
+      <nav className="flex items-center space-x-8">
+        <h3><Link to="/add/task" className="font-bold text-lg">добавить задачу</Link></h3>
+        <h3><Link to="/tasks" className='font-bold text-lg'>мои задачи</Link></h3>
+        <h3><Link to="/items" className='font-bold text-lg'>магазин</Link></h3>
+      </nav>
+    )
+  }
+
 
 
   const handleAuth = () => {
     if (auth) {
       setBar(
         <>
-          <h3><Link to="/profile" className='font-bold'>профиль</Link></h3>
-          <h3><Link to="/add/task" className="font-bold">добавить задачу</Link></h3>
-          <h3><Link to="/tasks" className='font-bold'>мои задачи</Link></h3>
-          <h3><Link to="/items" className='font-bold'>магазин</Link></h3>
-          <h3><button className='cursor-pointer font-bold' onClick={logoutUser}>выйти</button></h3>
+          <h3 className="bg-gray-400 border w-10 h-10 rounded-full">
+            <Link to="/profile" className='absolute w-10 h-10 rounded-full'></Link>
+          </h3>
+          <button className='cursor-pointer w-[30px] h-[30px]' onClick={logoutUser}>
+          <img src="/header/logout.svg"/>
+          </button>
         </>
       )
     } else {
@@ -50,17 +63,25 @@ export default function Header() {
 
   useEffect(() => {
     handleAuth();
+    handleNavigation();
   }, [auth]);
 
   return (
-    <header>
-      <div className="flex ml-4 space-x-8">
-        <Link to="/">
-          <img className='w-[180px] h-[60px] py-2' src={logo} alt={"Realms Of Life"} />
-        </Link>
-        {bar}
+    <header className="">
+      <div className="flex items-center justify-between py-2 ml-4">
+        {/* logo */}
+        <div className="flex items-center space-x-8">
+          <Link to="/">
+            <h1 className="font-acme text-3xl">Realms of Life</h1>
+          </Link>
+          { navigation }
+        </div>
+
+        <div className="flex items-center space-x-8 mr-8">
+          { bar }
+        </div>
       </div>
-      <hr />
+      <hr className="shadow-2xl"/>
     </header>
   );
 }

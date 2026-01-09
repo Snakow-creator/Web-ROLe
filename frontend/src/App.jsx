@@ -13,7 +13,7 @@ import Items from './pages/Items';
 
 export default function App() {
   return (
-    <>
+    <div>
       <Header />
 
       <main className='ml-4 mt-1'>
@@ -27,6 +27,6 @@ export default function App() {
           <Route path="/items" element={<Items />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 }

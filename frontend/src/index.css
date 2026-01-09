@@ -1,1 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
 @import "tailwindcss";
+
+
+@theme {
+  --font-acme: "Acme", sans-serif;
+
+  --color-text: #1E293B;
+  --color-background: #FAFBFF;
+  --color-border: #E5E9F0;
+}
+
+@layer base {
+  html {
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  hr {
+    border: 1px solid var(--color-border);
+  }
+}
+
