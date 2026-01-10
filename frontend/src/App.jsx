@@ -16,7 +16,7 @@ export default function App() {
     <div>
       <Header />
 
-      <main className='ml-4 mt-1'>
+      <main className='mt-2 lg:w-[70%] md:w-[80%] sm-[90%] mx-auto text-center'>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

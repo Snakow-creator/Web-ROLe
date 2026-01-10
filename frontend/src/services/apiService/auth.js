@@ -53,19 +53,32 @@ export const login = async (creds) => {
 
     localStorage.setItem("access_token", res.data.access_token);
     window.location.href = "/";
-  } catch (err) {
-    console.error(err);
+  } catch (ex) {
+    if (ex.response.status === 400) {
+      creds.changeMessageError(ex.response.data.message);
+    }
+    console.error(ex);
   }
 }
 
 export const register = async (creds) => {
   try {
-    const response = await api.post("/register", creds.formData)
-    console.log(response);
+    const res = await api.post("/register", creds.formData)
+    console.log(res);
 
     creds.successSubmit();
-  } catch (error) {
-    console.error(error);
+  } catch (errors) {
+
+    if (errors.response?.status == 400) {
+      errors.response.data.detail.forEach((error) => {
+        if (error.field === "name" && error.code === "user_exists") {
+          creds.changeMessageNameError();
+        } else if (error.field === "password" && error.code === "passwords_mismatch") {
+          creds.changeMessagePasswordError();
+        }
+      })
+    }
+    console.error(errors);
   }
 }
 

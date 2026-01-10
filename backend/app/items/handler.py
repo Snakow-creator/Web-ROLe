@@ -1,6 +1,6 @@
 from models.models import User
 from fastapi import APIRouter, Depends
-from api_demo.core.security import security
+from api.core.security import security
 from items.requests import get_items, buy_item
 
 

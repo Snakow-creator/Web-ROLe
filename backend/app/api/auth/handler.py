@@ -7,10 +7,10 @@ from models.schemas import UserSchema, RegisterUserSchema
 from users.object import UserObj
 from repositories import user_repo
 
-from api_demo.auth.crypt import hash_password, verify_password
-from api_demo.auth.service import auth
-from api_demo.core.config import test_data
-from api_demo.core.security import security
+from api.core.crypt import hash_password, verify_password
+from api.auth.service import auth
+from api.core.config import test_data
+from api.core.security import security
 
 from levels.data import which_my_role
 
@@ -31,7 +31,10 @@ async def login(creds: UserSchema):
             data = user_obj.data
 
         else:
-            return {"message": "Unauthorized", "error": "Invalid credentials"}
+            return JSONResponse(
+                status_code=400,
+                content={"message": "Invalid credentials", "error": "Invalid credentials"},
+            )
 
     tokens = await auth.authenticate_user(user_id, data)
     return {**data, "access_token": tokens["access_token"]}
@@ -44,8 +47,25 @@ async def logout(deps: AuthXDependency = Depends(security.get_dependency)):
 
 @router.post("/register")
 async def register(creds: RegisterUserSchema):
+    errors = []
+
+    user_names = await user_repo.get_all_names()
+    if creds.name in user_names:
+        errors.append({
+            "message": "User name already exists",
+            "field": "name",
+            "code": "user_exists",
+        })
+
     if creds.password1 != creds.password2:
-        raise HTTPException(status_code=400, detail="Password doesn't match")
+        errors.append({
+            "message": "Passwords do not match",
+            "field": "password",
+            "code": "passwords_mismatch",
+        })
+    print(errors)
+    if errors:
+        raise HTTPException(status_code=400, detail=errors)
 
     hashed_password = await hash_password(creds.password1)
     await user_repo.insert_user(creds.name, hashed_password)

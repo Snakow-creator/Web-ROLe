@@ -8,7 +8,7 @@ from models.settings import settings, baseSettings
 from base.utils import drop_tests_collection
 from tasks.utils import update_tasks
 from users.requests import users_days_and_last_mul_expired
-from api_demo.core.security import load_security_handle_errors
+from api.core.security import load_security_handle_errors
 from routers import init_router
 from utils import load_data
 

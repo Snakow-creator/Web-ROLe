@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
 @import "tailwindcss";
 
 
 @theme {
-  --font-acme: "Acme", sans-serif;
+  --font-acme: "Acme", system-ui;
+  --font-comfortaa: "Comfortaa", system-ui;
 
   --color-text: #1E293B;
-  --color-background: #FAFBFF;
+  --color-background: #F5F7FC;
   --color-border: #E5E9F0;
 }
 
@@ -14,6 +14,7 @@
   html {
     color: var(--color-text);
     background-color: var(--color-background);
+    font-family: var(--font-comfortaa);
   }
 
   hr {

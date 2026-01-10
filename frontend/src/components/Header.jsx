@@ -51,8 +51,8 @@ export default function Header() {
     } else {
       setBar(
         <>
-          <h3><Link to="/login" className='font-bold'>войти</Link></h3>
-          <h3><Link to="/register" className='font-bold'>регистрация</Link></h3>
+          <h3><Link to="/login" className='font-bold text-lg'>войти</Link></h3>
+          <h3><Link to="/register" className='font-bold text-lg'>регистрация</Link></h3>
         </>
       )
     }
@@ -67,7 +67,7 @@ export default function Header() {
   }, [auth]);
 
   return (
-    <header className="">
+    <header className="bg-[#FAFBFF]">
       <div className="flex items-center justify-between py-2 ml-4">
         {/* logo */}
         <div className="flex items-center space-x-8">

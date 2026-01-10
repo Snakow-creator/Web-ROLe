@@ -5,7 +5,7 @@ from authx.exceptions import JWTDecodeError
 from typing import Callable, Awaitable
 from datetime import timedelta
 
-from api_demo.core.security import security
+from api.core.security import security
 
 
 OptTokenGetter = Callable[[Request], Awaitable[RequestToken | None]]

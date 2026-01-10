@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 
 import { getTasks, completeTask, uncompleteTask, deleteTask } from "../services/apiService/tasks";
 
-import getMessage from "../hooks/getMessage";
-import getMessageLevel from "../hooks/getMessageLevel";
-import getWeeklyMessage from "../hooks/getWeeklyMessage";
+import { getMessageTask, getMessageLevel, getWeeklyMessage } from "../hooks/messages";
 import { quests_types } from "../hooks/data"
 
 
@@ -24,12 +22,12 @@ function Task(creds) {
   }
 
   const submitTask = async () => {
-    const onCompleteTask =  async (res) => {
+    const onCompleteTask = async (res) => {
       if (res.data?.isUpLevel) {
         setMessage(getMessageLevel());
         setSpointsLevel(res.data.spointsLevel)
       } else {
-        setMessage(getMessage());
+        setMessage(getMessageTask());
       }
 
       if (res.data?.isWeekly) {
@@ -145,7 +143,7 @@ export default function Tasks() {
       setTasks(data);
     }
 
-    getTasks({onFinish});
+    getTasks({ onFinish });
   }, []);
 
   return (

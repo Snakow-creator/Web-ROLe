@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { register } from "../services/apiService/auth";
+
+import { MessageError } from "../components/Message";
 import Button from "../components/Button";
 
 
@@ -40,6 +42,8 @@ export default function Register() {
     password2: ""
   })
   const [message, setMessage] = useState('');
+  const [messageNameError, setMessageNameError] = useState(<></>);
+  const [messagePasswordError, setMessagePasswordError] = useState(<></>);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,17 +55,37 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const successSubmit = () => {
-      setMessage("Вы успешно зарегистрировались");
+    const changeMessageNameError = () => {
+      setMessageNameError(
+        <MessageError>
+          Пользователь с таким ником уже существует
+        </MessageError>
+      )
+    }
+    const changeMessagePasswordError = () => {
+      setMessagePasswordError(
+        <MessageError>
+          Пароли не совпадают
+        </MessageError>
+      )
     }
 
-    if (formData.password1 !== formData.password2) {
-      setMessage("Пароли не совпадают");
-      return;
+    const successSubmit = () => {
+      // clear error messages
+      setMessageNameError(<></>);
+      setMessagePasswordError(<></>);
+
+      setMessage(
+        <p className="text-green-600 text-center">
+          Вы успешно зарегистрировались
+        </p>
+      );
     }
 
     await register({
       formData: formData,
+      changeMessageNameError: changeMessageNameError,
+      changeMessagePasswordError: changeMessagePasswordError,
       successSubmit: successSubmit,
     });
 
@@ -69,18 +93,20 @@ export default function Register() {
 
 
   return (
-    <>
+    <div className="container md:w-[50%] mx-auto rounded-2xl lg:mt-16 mt-4 py-4 bg-white shadow-sm">
       <h1 className="text-3xl font-extrabold">Регистрация</h1>
 
-      <form onSubmit={handleSubmit} className="mt-2">
+      <form onSubmit={handleSubmit} className="mt-4 space-y-2">
         <input
           type="text"
           placeholder="Ник"
-          className="block border rounded px-1 py-0.5"
+          className="block mx-auto border rounded px-1 py-0.5"
           name="name"
           value={formData.name}
           onChange={handleChange}
         />
+
+        { messageNameError }
 
         <InputPassword
           name="password1"
@@ -94,9 +120,11 @@ export default function Register() {
           value={formData.password2}
           onChange={handleChange} />
 
-        <Button type="submit">Зарегистрироваться</Button>
-        {message && <p className="text-glass-500 text-bold">{message}</p>}
+        { messagePasswordError }
+
+        <Button type="submit" isDone={true}>Зарегистрироваться</Button>
+        {message && <p className="text-green-600 text-bold">{message}</p>}
       </form>
-    </>
+    </div>
   );
 }

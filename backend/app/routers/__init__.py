@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from routers import root
-from api_demo.auth.handler import router as auth_router
+from api.auth.handler import router as auth_router
 from tasks.handler import router as tasks_router
 from items.handler import router as items_router
 

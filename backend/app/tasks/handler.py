@@ -8,7 +8,7 @@ from tasks.requests import complete_task, uncomplete_task
 
 from repositories import task_repo
 from baseTasks.data import list_baseTasks
-from api_demo.core.security import security
+from api.core.security import security
 
 import logging
 

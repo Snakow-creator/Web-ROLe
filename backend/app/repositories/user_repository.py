@@ -16,3 +16,8 @@ class UserRepository(BaseRepository):
 
         await user.insert()
         return user
+
+    async def get_all_names(self):
+        # get all user names
+        users = await self.find_all()
+        return (user.name for user in users)

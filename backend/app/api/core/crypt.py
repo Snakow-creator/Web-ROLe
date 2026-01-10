@@ -1,8 +1,5 @@
 from passlib.context import CryptContext
 
-import asyncio
-import functools
-
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

@@ -1,10 +1,12 @@
 import Button from "../components/Button";
 import { useState } from "react";
 import { login } from "../services/apiService/auth";
+import { MessageError } from "../components/Message";
 
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [messageError, setMessageError] = useState(<></>);
   const [formData, setFormData] = useState({
     name: "",
     password: ""
@@ -20,7 +22,15 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await login({ formData });
+    const changeMessageError = () => {
+      setMessageError(
+        <MessageError>
+          Неверное имя пользователя или пароль
+        </MessageError>
+      )
+    }
+
+    await login({ formData, changeMessageError });
   }
 
   const handleShowPassword = () => {
@@ -29,10 +39,11 @@ export default function Login() {
 
 
   return (
-    <>
+    <div className="container md:w-[50%] mx-auto rounded-2xl md:mt-16 mt-4 py-4 bg-white shadow-sm">
+
       <h1 className="text-3xl font-bold">Войти в аккаунт</h1>
 
-      <form onSubmit={handleSubmit} className="mt-2">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-2 w-full">
         <input
           type="text"
           id="name"
@@ -40,7 +51,8 @@ export default function Login() {
           placeholder="Ник"
           value={formData.name}
           onChange={handleChange}
-          className="block border rounded px-1 py-0.5" />
+          className="block mx-auto border rounded px-1 py-0.5"
+        />
 
         <span className="w-full relative">
           <input
@@ -53,17 +65,20 @@ export default function Login() {
             minLength="8"
             maxLength="20"
             onChange={handleChange}
-            className="border rounded px-1 py-0.5" />
+            className="border rounded px-1 py-0.5"
+          />
           <button
             type="button"
             onClick={handleShowPassword}
-            className="absolute right-2 translate-y-1 h-full text-gray-600 pointer font-bold text-2xl rounded-full"
+            className="absolute right-2 translate-y-1 h-full text-gray-600 pointer cursor-pointer font-bold text-2xl rounded-full"
           >*
           </button>
         </span>
 
-        <Button type="submit">Вход</Button>
+        {messageError}
+
+        <Button type="submit" isDone={true}>Вход</Button>
       </form>
-    </>
+    </div>
   );
 }
